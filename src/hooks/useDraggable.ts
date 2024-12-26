@@ -1,13 +1,18 @@
-import { ElementRect, UseDraggableOptions } from '@/@types';
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { setID, userSelect } from '@/utils';
+import type { DnDEntityID, IDnDProvider, UseDraggableOptions } from '@/@types';
+import { dropEventName, setID, userSelect } from '@/utils';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 
-export const useDraggable = (options: UseDraggableOptions) => {
+import { useDnDContext } from './useDnDContext';
+import { useRect } from './useRect';
+
+export const useDraggable = (
+  id: DnDEntityID,
+  options?: UseDraggableOptions
+) => {
   const elementRef = ref<HTMLElement | null>(null);
   const isDragging = ref(false);
 
-  const initialRect = ref<ElementRect | null>(null);
-  const currentRect = ref<ElementRect | null>(null);
+  const { currentRect, initialRect } = useRect(elementRef);
 
   const position = reactive({
     x: 0,
@@ -21,53 +26,10 @@ export const useDraggable = (options: UseDraggableOptions) => {
     percentY: 0,
   });
 
-  let resizeObserver: ResizeObserver | null = null;
-  let mutationObserver: MutationObserver | null = null;
-
   let lastScrollX = window.scrollX;
   let lastScrollY = window.scrollY;
 
-  const updateRect = () => {
-    if (!elementRef.value || !(elementRef.value instanceof Element)) {
-      return; // Не обнуляем currentRect, сохраняем последнее значение
-    }
-
-    const clientRect = elementRef.value.getBoundingClientRect();
-    currentRect.value = {
-      x: clientRect.x + window.scrollX,
-      y: clientRect.y + window.scrollY,
-      width: clientRect.width,
-      height: clientRect.height,
-      top: clientRect.top + window.scrollY,
-      right: clientRect.right + window.scrollX,
-      bottom: clientRect.bottom + window.scrollY,
-      left: clientRect.left + window.scrollX,
-    };
-
-    if (!initialRect.value) {
-      initialRect.value = { ...currentRect.value };
-    }
-  };
-
-  const setupObservers = (target: HTMLElement) => {
-    resizeObserver = new ResizeObserver(updateRect);
-    resizeObserver.observe(target);
-
-    mutationObserver = new MutationObserver(updateRect);
-    mutationObserver.observe(target, {
-      attributes: true,
-      attributeFilter: ['style', 'class'],
-    });
-
-    updateRect();
-  };
-
-  const cleanupObservers = () => {
-    resizeObserver?.disconnect();
-    mutationObserver?.disconnect();
-    resizeObserver = null;
-    mutationObserver = null;
-  };
+  const contextRef = ref<IDnDProvider | null>();
 
   const handleScroll = () => {
     if (!isDragging.value) return;
@@ -84,6 +46,10 @@ export const useDraggable = (options: UseDraggableOptions) => {
 
   const start = (event: PointerEvent) => {
     if (!currentRect.value) return;
+
+    if (contextRef.value) {
+      contextRef.value.isDragging = true;
+    }
 
     userSelect.disable();
     isDragging.value = true;
@@ -104,14 +70,65 @@ export const useDraggable = (options: UseDraggableOptions) => {
     document.addEventListener('pointerup', end);
     window.addEventListener('scroll', handleScroll);
 
-    options.onStart?.();
+    options?.onStart?.();
   };
 
   const move = (event: PointerEvent) => {
     position.x = event.pageX;
     position.y = event.pageY;
 
-    options.onMove?.();
+    options?.onMove?.();
+
+    if (!currentRect.value || !contextRef.value) return;
+
+    // Проверяем только 4 крайние точки
+    const points = [
+      { x: position.x - currentRect.value.width / 2, y: position.y }, // левая точка
+      { x: position.x + currentRect.value.width / 2, y: position.y }, // правая точка
+      { x: position.x, y: position.y - currentRect.value.height / 2 }, // верхняя точка
+      { x: position.x, y: position.y + currentRect.value.height / 2 }, // нижняя точка
+    ];
+
+    for (const point of points) {
+      const target = document.elementFromPoint(
+        point.x - window.scrollX,
+        point.y - window.scrollY
+      );
+
+      const droppable = target?.closest('[data-droppable]');
+
+      if (droppable) {
+        const rect = droppable.getBoundingClientRect();
+
+        const dragRect = {
+          x: position.x - window.scrollX - currentRect.value.width / 2,
+          y: position.y - window.scrollY - currentRect.value.height / 2,
+          w: currentRect.value.width,
+          h: currentRect.value.height,
+        };
+
+        const dropRect = {
+          x: rect.left,
+          y: rect.top,
+          w: rect.width,
+          h: rect.height,
+        };
+
+        if (
+          !(
+            dragRect.x > dropRect.x + dropRect.w ||
+            dragRect.x + dragRect.w < dropRect.x ||
+            dragRect.y > dropRect.y + dropRect.h ||
+            dragRect.y + dragRect.h < dropRect.y
+          )
+        ) {
+          contextRef.value.overElement = droppable as HTMLElement;
+          return;
+        }
+      } else {
+        contextRef.value.overElement = null;
+      }
+    }
   };
 
   const end = () => {
@@ -122,39 +139,31 @@ export const useDraggable = (options: UseDraggableOptions) => {
     document.removeEventListener('pointerup', end);
     window.removeEventListener('scroll', handleScroll);
 
-    options.onEnd?.();
+    if (contextRef.value) {
+      contextRef.value.overElement?.dispatchEvent(new Event(dropEventName));
+
+      contextRef.value.isDragging = false;
+      contextRef.value.overElement = null;
+    }
+
+    options?.onEnd?.();
   };
-
-  watch(
-    elementRef,
-    (newEl, oldEl) => {
-      if (oldEl) {
-        oldEl.removeEventListener('pointerdown', start);
-        cleanupObservers();
-      }
-
-      if (newEl) {
-        newEl.addEventListener('pointerdown', start);
-        setID(newEl, options.id);
-        setupObservers(newEl);
-      }
-    },
-    { immediate: true }
-  );
 
   onMounted(() => {
     if (elementRef.value) {
-      setID(elementRef.value, options.id);
+      setID(elementRef.value, id);
       elementRef.value.addEventListener('pointerdown', start);
-      setupObservers(elementRef.value);
+    }
+
+    if (options?.contextName) {
+      contextRef.value = useDnDContext(options.contextName);
     }
   });
 
   onUnmounted(() => {
-    if (elementRef.value) {
+    if (elementRef.value)
       elementRef.value.removeEventListener('pointerdown', start);
-    }
-    cleanupObservers();
+
     document.removeEventListener('pointermove', move);
     document.removeEventListener('pointerup', end);
     window.removeEventListener('scroll', handleScroll);

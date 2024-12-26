@@ -1,69 +1,35 @@
-<template>
-  <DnDProvider>
-    <Draggable>123123123</Draggable>
-  </DnDProvider>
-</template>
-
 <script setup>
   import { useDraggable } from '@/hooks/useDraggable';
   import { useDroppable } from '@/hooks/useDroppable';
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
   import DnDProvider from './components/DnDProvider.vue';
   import Draggable from './components/Draggable.vue';
-  const {
-    elementRef: draggableElement,
-    position,
-    isDragging,
-    offset,
-  } = useDraggable({
-    id: 'draggable',
-  });
+  import { useRect } from './hooks/useRect';
+  import Droppable from './components/Droppable.vue';
 
-  const { containerRef, isOver, checkOverlap, handleDrop } = useDroppable({
-    onDrop: (event) => {
-      console.log('Dropped into container!', event);
-    },
-  });
-
-  const checkOverlapOnMove = (event) => {
-    if (isDragging.value) {
-      checkOverlap(event.pageX, event.pageY);
-    }
-  };
-
-  const handleDropOnRelease = (event) => {
-    if (isDragging.value) {
-      handleDrop(event);
-    }
-  };
-
-  onMounted(() => {
-    document.addEventListener('pointermove', checkOverlapOnMove);
-  });
+  const element = ref();
 </script>
 
+<template>
+  <DnDProvider>
+    <Draggable hide-on-drag>123123123</Draggable>
+    <Droppable class="drop-zone">
+      <div> drop zone </div>
+      <Droppable class="drop-zone">
+        <div> drop zone 2</div>
+      </Droppable>
+    </Droppable>
+  </DnDProvider>
+</template>
+
 <style>
-  .draggable {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    background-color: lightblue;
-    cursor: grab;
+  .test {
+    overflow: scroll;
+    resize: both;
+    display: block;
   }
-
-  .droppable-container {
-    width: 200px;
-    height: 200px;
-    border: 2px dashed #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-  }
-
-  .droppable-container.over {
-    border-color: green;
-    background-color: rgba(0, 255, 0, 0.1);
+  .drop-zone {
+    padding: 20px;
+    border: 1px dashed #000;
   }
 </style>

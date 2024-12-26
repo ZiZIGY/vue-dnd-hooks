@@ -1,15 +1,10 @@
 <script setup lang="ts">
-  import { IDnDContext } from '@/@types';
-  import { contextName } from '@/utils';
-  import { provide, reactive } from 'vue';
+  import { useDnDProvider } from '@/hooks/useDnDProvider';
 
-  const context = reactive<IDnDContext>({
-    isDragging: false,
-  });
-
-  provide(contextName, context);
+  const provider = useDnDProvider('Test');
 </script>
 
 <template>
+  {{ provider }}
   <slot></slot>
 </template>

@@ -1,66 +1,41 @@
 <script lang="ts" setup>
-  import { DraggableProps, IDnDContext } from '@/@types';
+  import { DraggableProps } from '@/@types';
   import { useDraggable } from '@/hooks/useDraggable';
-  import { useUniqueId } from '@/hooks/useUniqueId';
-  import { contextName } from '@/utils';
-  import { computed, inject, ref } from 'vue';
+  import { useUniqueId } from '@/hooks/useUniqueID';
 
-  const {
-    tag = 'div',
-    id = useUniqueId(),
-    hideOnDrag = false,
-  } = defineProps<DraggableProps>();
+  const { tag = 'div', id = useUniqueId() } = defineProps<DraggableProps>();
 
-  const context = inject<IDnDContext>(contextName);
-
-  if (!context) throw new Error('DnDContext is not provided');
-
-  const showRef = computed<boolean>(() => {
-    if (hideOnDrag) return !context?.isDragging;
-    return true;
-  });
-  const transitioning = ref<boolean>(false);
-
-  const { elementRef, position, currentRect } = useDraggable({
-    id,
-    onStart: () => {
-      context.isDragging = true;
-    },
-    onEnd: () => {
-      context.isDragging = false;
-    },
+  const { elementRef, position, isDragging, offset } = useDraggable(id, {
+    contextName: 'Test',
   });
 </script>
 
 <template>
-  <Transition name="draggable">
-    <component
-      v-if="showRef"
-      ref="elementRef"
-      :is="tag"
-      :class="{
-        draggable: true,
-        dragging: context.isDragging,
-      }"
-    >
-      <slot></slot>
-    </component>
-  </Transition>
-
-  <Transition
-    name="draggable-layer"
-    @before-enter="transitioning = true"
-    @after-leave="transitioning = false"
+  <component
+    ref="elementRef"
+    :is="tag"
+    :class="{
+      draggable: true,
+      dragging: isDragging,
+    }"
+    :style="{
+      '--top': `${position.y - offset.y}px`,
+      '--left': `${position.x - offset.x}px`,
+    }"
   >
-    <div
-      v-if="context.isDragging"
-      class="draggable-layer"
-    >
-      <slot name="layer">
-        <slot></slot>
-      </slot>
-    </div>
-  </Transition>
+    <slot></slot>
+  </component>
 </template>
 
-<style></style>
+<style>
+  .draggable {
+    position: absolute;
+    cursor: move;
+    top: var(--top);
+    left: var(--left);
+    transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .dragging {
+    pointer-events: none;
+  }
+</style>

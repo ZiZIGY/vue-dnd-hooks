@@ -1,28 +1,29 @@
 import { type Component, type Ref } from 'vue';
 
-export type DraggableId = string | number | Crypto;
+export type DnDEntityID = string | number | Crypto;
 
 export interface IDraggableProps {
   tag?: keyof HTMLElementTagNameMap;
   layer?: Component;
-  id: DraggableId;
+  id: DnDEntityID;
 }
 
 export type DraggableProps = {
-  id?: DraggableId;
+  id?: DnDEntityID;
   tag?: keyof HTMLElementTagNameMap;
   hideOnDrag?: boolean;
 };
 
 export interface UseDraggableOptions {
-  id: DraggableId;
+  contextName?: string;
   onStart?: () => void;
   onMove?: () => void;
   onEnd?: () => void;
 }
 
-export interface IDnDContext {
+export interface IDnDProvider extends Record<string, any> {
   isDragging: boolean;
+  overElement: HTMLElement | null | Element;
 }
 
 export type ElementRect = {

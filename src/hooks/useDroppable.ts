@@ -1,71 +1,51 @@
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { DnDEntityID, IDnDProvider } from '@/@types';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { dropEventName, setID } from '@/utils';
+
+import { useDnDContext } from '@/hooks/useDnDContext';
+import { useRect } from '@/hooks/useRect';
 
 interface DroppableOptions {
-  id: string; // Уникальный идентификатор
-  onDrop?: (event: DragEvent) => void; // Коллбэк при успешном дропе
+  onDrop?: () => void;
+  contextName?: string;
 }
 
-export const useDroppable = (options: DroppableOptions) => {
+export const useDroppable = (id: DnDEntityID, options: DroppableOptions) => {
   const containerRef = ref<HTMLElement | null>(null);
-  const isOver = ref(false); // Показывает, находится ли элемент над контейнером
-  const rect = reactive({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+  const { currentRect, initialRect } = useRect(containerRef);
+
+  const contextRef = ref<IDnDProvider | null>();
+
+  const isOver = computed(() => {
+    if (!contextRef.value) return false;
+    return contextRef.value.overElement === containerRef.value;
   });
 
-  const updateRect = () => {
-    if (!containerRef.value) return;
-    const clientRect = containerRef.value.getBoundingClientRect();
-    rect.x = clientRect.x + window.scrollX;
-    rect.y = clientRect.y + window.scrollY;
-    rect.width = clientRect.width;
-    rect.height = clientRect.height;
-    rect.top = clientRect.top + window.scrollY;
-    rect.right = clientRect.right + window.scrollX;
-    rect.bottom = clientRect.bottom + window.scrollY;
-    rect.left = clientRect.left + window.scrollX;
-  };
-
-  const checkOverlap = (dragX: number, dragY: number) => {
-    isOver.value =
-      dragX >= rect.left &&
-      dragX <= rect.right &&
-      dragY >= rect.top &&
-      dragY <= rect.bottom;
-  };
-
-  const handleDrop = (event: DragEvent) => {
-    if (isOver.value && options.onDrop) {
-      options.onDrop(event);
+  const dropHandle = () => {
+    if (options.onDrop) {
+      options.onDrop();
     }
-    isOver.value = false;
   };
 
   onMounted(() => {
     if (!containerRef.value) return;
 
-    updateRect();
+    if (options?.contextName) {
+      contextRef.value = useDnDContext(options.contextName);
+    }
 
-    window.addEventListener('resize', updateRect);
-    window.addEventListener('scroll', updateRect);
+    setID(containerRef.value, id);
+
+    containerRef.value.addEventListener(dropEventName, dropHandle, false);
+    containerRef.value.dataset.droppable = 'true';
   });
 
-  onUnmounted(() => {
-    window.removeEventListener('resize', updateRect);
-    window.removeEventListener('scroll', updateRect);
-  });
+  onUnmounted(() => {});
 
   return {
     containerRef,
-    isOver, // Показывает, находится ли элемент над контейнером
-    rect, // Текущие размеры и координаты контейнера
-    checkOverlap, // Метод для проверки попадания в контейнер
-    handleDrop, // Метод для обработки события drop
+    initialRect,
+    currentRect,
+    isOver,
   };
 };

@@ -1,10 +1,10 @@
-import { DraggableId } from '@/@types';
+import { DnDEntityID } from '@/@types';
 
 export const contextName = 'DnDContext';
+export const dropEventName = 'dnd-drop';
 
-export const setID = (el: HTMLElement, id: DraggableId) => {
-  el.dataset.dndId = id.toString();
-};
+export const setID = (el: HTMLElement, id: DnDEntityID) =>
+  (el.dataset.dndId = id.toString());
 
 export const userSelect = {
   originalValue: '',
