@@ -1,10 +1,14 @@
+import { IDnDProvider, IDnDProviderOptions } from '@/@types';
 import { provide, reactive } from 'vue';
 
-import { IDnDProvider } from '@/@types';
-
-export const useDnDProvider = (name: string): IDnDProvider => {
+export const useDnDProvider = (
+  name: string,
+  options: IDnDProviderOptions
+): IDnDProvider => {
   const provider = reactive<IDnDProvider>({
     isDragging: false,
+    overElement: null,
+    dragEnd: options.onDragEnd,
   });
 
   provide(name, provider);

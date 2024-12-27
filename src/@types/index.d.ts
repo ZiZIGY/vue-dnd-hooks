@@ -15,15 +15,27 @@ export type DraggableProps = {
 };
 
 export interface UseDraggableOptions {
-  contextName?: string;
   onStart?: () => void;
   onMove?: () => void;
   onEnd?: () => void;
 }
 
+export interface UseDroppableOptions {
+  onDrop?: () => void;
+}
+
+export interface IDnDOverElement {
+  id: DnDEntityID;
+  node: HTMLElement;
+}
+
 export interface IDnDProvider extends Record<string, any> {
   isDragging: boolean;
-  overElement: HTMLElement | null | Element;
+  overElement: IDnDOverElement | null;
+}
+
+export interface IDnDProviderOptions {
+  onDragEnd?: (context: IDnDProvider) => void;
 }
 
 export type ElementRect = {

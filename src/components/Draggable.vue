@@ -5,9 +5,7 @@
 
   const { tag = 'div', id = useUniqueId() } = defineProps<DraggableProps>();
 
-  const { elementRef, position, isDragging, offset } = useDraggable(id, {
-    contextName: 'Test',
-  });
+  const { elementRef, position, isDragging, offset } = useDraggable(id, 'Test');
 </script>
 
 <template>
@@ -29,13 +27,12 @@
 
 <style>
   .draggable {
-    position: absolute;
     cursor: move;
-    top: var(--top);
-    left: var(--left);
-    transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
   .dragging {
+    position: absolute;
     pointer-events: none;
+    top: var(--top);
+    left: var(--left);
   }
 </style>

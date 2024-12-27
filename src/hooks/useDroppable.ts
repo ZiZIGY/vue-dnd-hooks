@@ -1,24 +1,25 @@
-import { DnDEntityID, IDnDProvider } from '@/@types';
+import { DnDEntityID, IDnDProvider, UseDroppableOptions } from '@/@types';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { dropEventName, setID } from '@/utils';
 
 import { useDnDContext } from '@/hooks/useDnDContext';
 import { useRect } from '@/hooks/useRect';
 
-interface DroppableOptions {
-  onDrop?: () => void;
-  contextName?: string;
-}
-
-export const useDroppable = (id: DnDEntityID, options: DroppableOptions) => {
+export const useDroppable = (
+  id: DnDEntityID,
+  contextName: string,
+  options: UseDroppableOptions
+) => {
   const containerRef = ref<HTMLElement | null>(null);
   const { currentRect, initialRect } = useRect(containerRef);
 
-  const contextRef = ref<IDnDProvider | null>();
+  const context = useDnDContext<IDnDProvider>(contextName);
+  if (!context) {
+    throw new Error(`DnD context "${contextName}" not found`);
+  }
 
   const isOver = computed(() => {
-    if (!contextRef.value) return false;
-    return contextRef.value.overElement === containerRef.value;
+    return context.overElement?.node === containerRef.value;
   });
 
   const dropHandle = () => {
@@ -30,17 +31,11 @@ export const useDroppable = (id: DnDEntityID, options: DroppableOptions) => {
   onMounted(() => {
     if (!containerRef.value) return;
 
-    if (options?.contextName) {
-      contextRef.value = useDnDContext(options.contextName);
-    }
-
     setID(containerRef.value, id);
 
     containerRef.value.addEventListener(dropEventName, dropHandle, false);
     containerRef.value.dataset.droppable = 'true';
   });
-
-  onUnmounted(() => {});
 
   return {
     containerRef,

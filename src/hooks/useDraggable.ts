@@ -7,10 +7,16 @@ import { useRect } from './useRect';
 
 export const useDraggable = (
   id: DnDEntityID,
+  contextName: string,
   options?: UseDraggableOptions
 ) => {
   const elementRef = ref<HTMLElement | null>(null);
   const isDragging = ref(false);
+
+  const context = useDnDContext<IDnDProvider>(contextName);
+  if (!context) {
+    throw new Error(`DnD context "${contextName}" not found`);
+  }
 
   const { currentRect, initialRect } = useRect(elementRef);
 
@@ -29,8 +35,6 @@ export const useDraggable = (
   let lastScrollX = window.scrollX;
   let lastScrollY = window.scrollY;
 
-  const contextRef = ref<IDnDProvider | null>();
-
   const handleScroll = () => {
     if (!isDragging.value) return;
 
@@ -47,9 +51,7 @@ export const useDraggable = (
   const start = (event: PointerEvent) => {
     if (!currentRect.value) return;
 
-    if (contextRef.value) {
-      contextRef.value.isDragging = true;
-    }
+    context.isDragging = true;
 
     userSelect.disable();
     isDragging.value = true;
@@ -79,7 +81,7 @@ export const useDraggable = (
 
     options?.onMove?.();
 
-    if (!currentRect.value || !contextRef.value) return;
+    if (!currentRect.value) return;
 
     // Проверяем только 4 крайние точки
     const points = [
@@ -99,6 +101,9 @@ export const useDraggable = (
 
       if (droppable) {
         const rect = droppable.getBoundingClientRect();
+        const droppableId = droppable.getAttribute('data-dnd-id');
+
+        if (!droppableId) return;
 
         const dragRect = {
           x: position.x - window.scrollX - currentRect.value.width / 2,
@@ -122,11 +127,14 @@ export const useDraggable = (
             dragRect.y + dragRect.h < dropRect.y
           )
         ) {
-          contextRef.value.overElement = droppable as HTMLElement;
+          context.overElement = {
+            id: droppableId,
+            node: droppable as HTMLElement,
+          };
           return;
         }
       } else {
-        contextRef.value.overElement = null;
+        context.overElement = null;
       }
     }
   };
@@ -139,24 +147,19 @@ export const useDraggable = (
     document.removeEventListener('pointerup', end);
     window.removeEventListener('scroll', handleScroll);
 
-    if (contextRef.value) {
-      contextRef.value.overElement?.dispatchEvent(new Event(dropEventName));
-
-      contextRef.value.isDragging = false;
-      contextRef.value.overElement = null;
-    }
+    context.overElement?.node.dispatchEvent(new Event(dropEventName));
+    context.dragEnd?.(context);
 
     options?.onEnd?.();
+
+    context.isDragging = false;
+    context.overElement = null;
   };
 
   onMounted(() => {
     if (elementRef.value) {
       setID(elementRef.value, id);
       elementRef.value.addEventListener('pointerdown', start);
-    }
-
-    if (options?.contextName) {
-      contextRef.value = useDnDContext(options.contextName);
     }
   });
 
