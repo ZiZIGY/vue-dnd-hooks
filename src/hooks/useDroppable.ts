@@ -1,40 +1,45 @@
 import { DnDEntityID, IDnDProvider, UseDroppableOptions } from '@/@types';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { dropEventName, setID } from '@/utils';
+import { computed, onMounted, ref, watch } from 'vue';
 
+import { setDataAttribute } from '@/utils';
 import { useDnDContext } from '@/hooks/useDnDContext';
 import { useRect } from '@/hooks/useRect';
 
-export const useDroppable = (
+export const useDroppable = <T = void>(
   id: DnDEntityID,
   contextName: string,
-  options: UseDroppableOptions
+  options: UseDroppableOptions<T>
 ) => {
   const containerRef = ref<HTMLElement | null>(null);
   const { currentRect, initialRect } = useRect(containerRef);
 
-  const context = useDnDContext<IDnDProvider>(contextName);
+  const context = useDnDContext<T & IDnDProvider>(contextName);
   if (!context) {
     throw new Error(`DnD context "${contextName}" not found`);
   }
 
-  const isOver = computed(() => {
-    return context.overElement?.node === containerRef.value;
-  });
+  const isOver = computed(
+    () => context.overElement?.node === containerRef.value && context.isDragging
+  );
 
-  const dropHandle = () => {
-    if (options.onDrop) {
-      options.onDrop();
+  let wasOver = false;
+  watch([isOver, () => context.isDragging], ([value, isDragging]) => {
+    if (value && !wasOver) {
+      options.onOver?.(context);
+    } else if (!value && wasOver) {
+      options.onLeave?.(context);
     }
-  };
+    if (wasOver && !isDragging) {
+      options.onDrop?.(context);
+    }
+    wasOver = value;
+  });
 
   onMounted(() => {
     if (!containerRef.value) return;
 
-    setID(containerRef.value, id);
-
-    containerRef.value.addEventListener(dropEventName, dropHandle, false);
-    containerRef.value.dataset.droppable = 'true';
+    setDataAttribute(containerRef.value, 'dndId', id.toString());
+    setDataAttribute(containerRef.value, 'dndDroppable', 'true');
   });
 
   return {

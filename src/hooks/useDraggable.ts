@@ -1,22 +1,20 @@
 import type { DnDEntityID, IDnDProvider, UseDraggableOptions } from '@/@types';
-import { dropEventName, setID, userSelect } from '@/utils';
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { setDataAttribute, userSelect } from '@/utils';
 
 import { useDnDContext } from './useDnDContext';
 import { useRect } from './useRect';
 
-export const useDraggable = (
+export const useDraggable = <T = void>(
   id: DnDEntityID,
   contextName: string,
-  options?: UseDraggableOptions
+  options?: UseDraggableOptions<T>
 ) => {
   const elementRef = ref<HTMLElement | null>(null);
   const isDragging = ref(false);
 
-  const context = useDnDContext<IDnDProvider>(contextName);
-  if (!context) {
-    throw new Error(`DnD context "${contextName}" not found`);
-  }
+  const context = useDnDContext<T & IDnDProvider>(contextName);
+  if (!context) throw new Error(`DnD context "${contextName}" not found`);
 
   const { currentRect, initialRect } = useRect(elementRef);
 
@@ -72,14 +70,12 @@ export const useDraggable = (
     document.addEventListener('pointerup', end);
     window.addEventListener('scroll', handleScroll);
 
-    options?.onStart?.();
+    options?.dragStart?.(context);
   };
 
   const move = (event: PointerEvent) => {
     position.x = event.pageX;
     position.y = event.pageY;
-
-    options?.onMove?.();
 
     if (!currentRect.value) return;
 
@@ -97,7 +93,7 @@ export const useDraggable = (
         point.y - window.scrollY
       );
 
-      const droppable = target?.closest('[data-droppable]');
+      const droppable = target?.closest('[data-dnd-droppable]');
 
       if (droppable) {
         const rect = droppable.getBoundingClientRect();
@@ -137,6 +133,8 @@ export const useDraggable = (
         context.overElement = null;
       }
     }
+
+    options?.dragMove?.(context);
   };
 
   const end = () => {
@@ -147,10 +145,13 @@ export const useDraggable = (
     document.removeEventListener('pointerup', end);
     window.removeEventListener('scroll', handleScroll);
 
-    context.overElement?.node.dispatchEvent(new Event(dropEventName));
-    context.dragEnd?.(context);
+    if (options?.dragEnd) {
+      options.dragEnd(context);
 
-    options?.onEnd?.();
+      console.log('options');
+    } else {
+      context.dragEnd?.(context);
+    }
 
     context.isDragging = false;
     context.overElement = null;
@@ -158,7 +159,7 @@ export const useDraggable = (
 
   onMounted(() => {
     if (elementRef.value) {
-      setID(elementRef.value, id);
+      setDataAttribute(elementRef.value, 'dndId', id.toString());
       elementRef.value.addEventListener('pointerdown', start);
     }
   });

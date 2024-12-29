@@ -1,69 +1,152 @@
-<script setup>
-  import { useDraggable } from '@/hooks/useDraggable';
-  import { useDroppable } from '@/hooks/useDroppable';
-  import { onMounted, ref } from 'vue';
+<script setup lang="ts">
   import DnDProvider from './components/DnDProvider.vue';
   import Draggable from './components/Draggable.vue';
-  import { useRect } from './hooks/useRect';
   import Droppable from './components/Droppable.vue';
-  import Skeleton from './components/Skeleton.vue';
+  import { IDnDProvider } from './@types';
+  import { ref } from 'vue';
 
-  const parent = ref(null);
+  interface IUser {
+    id: number;
+    name: string;
+    lastName: string;
+    age: number;
+    email: string;
+    phone: string;
+  }
 
-  const handleDragEnd = (context) => {
-    console.log('context', context.overElement);
+  const newUser = ref<IUser[]>([
+    {
+      id: 6,
+      name: 'New',
+      lastName: 'User',
+      age: 20,
+      email: 'new.user@example.com',
+      phone: '+79999999999',
+    },
+  ]);
+
+  const items = ref<IUser[]>([
+    {
+      id: 1,
+      name: 'John',
+      lastName: 'Doe',
+      age: 20,
+      email: 'john.doe@example.com',
+      phone: '+79999999999',
+    },
+    {
+      id: 2,
+      name: 'Jane',
+      lastName: 'Doe',
+      age: 20,
+      email: 'jane.doe@example.com',
+      phone: '+79999999999',
+    },
+    {
+      id: 3,
+      name: 'John',
+      lastName: 'Smith',
+      age: 20,
+      email: 'john.smith@example.com',
+      phone: '+79999999999',
+    },
+    {
+      id: 4,
+      name: 'John',
+      lastName: 'Malkovich',
+      age: 20,
+      email: 'john.malkovich@example.com',
+      phone: '+79999999999',
+    },
+    {
+      id: 5,
+      name: 'John',
+      lastName: 'Agile',
+      age: 20,
+      email: 'john.agile@example.com',
+      phone: '+79999999999',
+    },
+  ]);
+
+  const handleDragEnd = (context: IDnDProvider) => {
+    console.log(context);
     if (context.overElement) {
-      parent.value = context.overElement;
-    } else {
-      parent.value = null;
+      items.value.push(newUser.value[0]);
+      newUser.value.shift();
     }
   };
 </script>
 
 <template>
   <DnDProvider @drag-end="handleDragEnd">
-    <Draggable
-      v-if="parent === null"
-      :id="123"
-      @drag-end="handleDragEnd"
+    <TransitionGroup
+      name="list"
+      tag="div"
     >
-      123123123
-    </Draggable>
-    <Droppable
-      class="drop-zone"
-      :id="1"
-    >
-      <div> drop zone </div>
       <Draggable
-        :id="123"
-        v-if="parent?.id == '1'"
+        v-for="item in newUser"
+        :key="item.id"
       >
-        <Skeleton></Skeleton>
+        <div>
+          <span>{{ item }}</span>
+        </div>
       </Draggable>
-      <Droppable
-        :id="2"
-        class="drop-zone"
+    </TransitionGroup>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Last Name</th>
+          <th>Age</th>
+          <th>Email</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <TransitionGroup
+        tag="tbody"
+        name="list"
       >
-        <div> drop zone </div>
-        <Draggable
-          :id="123"
-          v-if="parent?.id == '2'"
+        <tr
+          v-for="item in items"
+          :key="item.id"
         >
-          kek
-        </Draggable>
-      </Droppable>
-    </Droppable>
+          <td>{{ item.name }}</td>
+          <td>{{ item.lastName }}</td>
+          <td>{{ item.age }}</td>
+          <td>{{ item.email }}</td>
+          <td>{{ item.phone }}</td>
+        </tr>
+        <tr>
+          <td colspan="5">
+            <Droppable />
+          </td>
+        </tr>
+      </TransitionGroup>
+    </table>
   </DnDProvider>
 </template>
 
 <style>
-  .test {
-    overflow: scroll;
-    resize: both;
-    display: block;
+  .table tr,
+  .table div {
+    height: 50px;
   }
-  .drop-zone {
-    padding: 20px;
-    border: 1px dashed #000;
+
+  .list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.5s ease;
+  }
+
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  /* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+  .list-leave-active {
+    position: absolute;
   }
 </style>

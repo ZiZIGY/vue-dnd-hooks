@@ -11,31 +11,33 @@ export interface IDraggableProps {
 export type DraggableProps = {
   id?: DnDEntityID;
   tag?: keyof HTMLElementTagNameMap;
-  hideOnDrag?: boolean;
 };
 
-export interface UseDraggableOptions {
-  onStart?: () => void;
-  onMove?: () => void;
-  onEnd?: () => void;
+export interface UseDraggableOptions<T = void> {
+  dragStart?: (context: T & IDnDProvider) => void;
+  dragMove?: (context: T & IDnDProvider) => void;
+  dragEnd?: (context: T & IDnDProvider) => void;
 }
 
-export interface UseDroppableOptions {
-  onDrop?: () => void;
+export interface UseDroppableOptions<T = void> {
+  onDrop?: (context: T & IDnDProvider) => void;
+  onOver?: (context: T & IDnDProvider) => void;
+  onLeave?: (context: T & IDnDProvider) => void;
 }
 
-export interface IDnDOverElement {
+export interface IDnDElementRecord {
   id: DnDEntityID;
   node: HTMLElement;
 }
 
 export interface IDnDProvider extends Record<string, any> {
   isDragging: boolean;
-  overElement: IDnDOverElement | null;
+  overElement: IDnDElementRecord | null;
+  dragEnd?: (context: IDnDProvider) => void;
 }
 
 export interface IDnDProviderOptions {
-  onDragEnd?: (context: IDnDProvider) => void;
+  dragEnd?: (context: IDnDProvider) => void;
 }
 
 export type ElementRect = {

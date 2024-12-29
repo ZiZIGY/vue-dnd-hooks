@@ -6,7 +6,8 @@
   }>();
 
   useDnDProvider('Test', {
-    onDragEnd: (context) => {
+    dragEnd: (context) => {
+      console.log('test');
       emit('drag-end', context);
     },
   });
