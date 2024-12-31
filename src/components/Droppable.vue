@@ -4,23 +4,19 @@
   import { useUniqueId } from '@/hooks/useUniqueID';
   import { DnDEntityID } from '@/@types';
   import { markRaw, type Component } from 'vue';
-  import { contextName } from '@/utils';
 
   interface IDroppableProps {
     tag?: keyof HTMLElementTagNameMap;
     id?: DnDEntityID;
   }
 
-  const { tag = 'div', id = useUniqueId() } = defineProps<IDroppableProps>();
-  const emit = defineEmits<{
-    (e: 'dropped', id: DnDEntityID): void;
-  }>();
+  const { id = useUniqueId() } = defineProps<IDroppableProps>();
 
   interface Test {
     layer?: Component;
   }
 
-  const { containerRef, isOver } = useDroppable<Test>(id, 'Test', {
+  const { elementRef, isOver } = useDroppable<Test>(id, 'Test', {
     onOver: (context) => {
       context.layer = markRaw(Skeleton);
     },
@@ -32,7 +28,7 @@
 
 <template>
   <div
-    ref="containerRef"
+    ref="elementRef"
     :class="{
       'drop-tr': isOver,
     }"

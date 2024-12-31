@@ -10,16 +10,15 @@ export const useDroppable = <T = void>(
   contextName: string,
   options: UseDroppableOptions<T>
 ) => {
-  const containerRef = ref<HTMLElement | null>(null);
-  const { currentRect, initialRect } = useRect(containerRef);
+  const elementRef = ref<HTMLElement | null>(null);
+  const { currentRect, initialRect } = useRect(elementRef);
 
   const context = useDnDContext<T & IDnDProvider>(contextName);
-  if (!context) {
-    throw new Error(`DnD context "${contextName}" not found`);
-  }
+
+  if (!context) throw new Error(`DnD context "${contextName}" not found`);
 
   const isOver = computed(
-    () => context.overElement?.node === containerRef.value && context.isDragging
+    () => context.overElement?.node === elementRef.value && context.isDragging
   );
 
   let wasOver = false;
@@ -36,14 +35,14 @@ export const useDroppable = <T = void>(
   });
 
   onMounted(() => {
-    if (!containerRef.value) return;
+    if (!elementRef.value) return;
 
-    setDataAttribute(containerRef.value, 'dndId', id.toString());
-    setDataAttribute(containerRef.value, 'dndDroppable', 'true');
+    setDataAttribute(elementRef.value, 'dndId', id.toString());
+    setDataAttribute(elementRef.value, 'dndDroppable', 'true');
   });
 
   return {
-    containerRef,
+    elementRef,
     initialRect,
     currentRect,
     isOver,

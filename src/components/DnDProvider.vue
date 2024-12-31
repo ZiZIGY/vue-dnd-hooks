@@ -5,14 +5,14 @@
     (e: 'drag-end', context: IDnDProvider): void;
   }>();
 
-  useDnDProvider('Test', {
+  const provider = useDnDProvider('Test', {
     dragEnd: (context) => {
-      console.log('test');
       emit('drag-end', context);
     },
   });
 </script>
 
 <template>
+  {{ provider }}
   <slot></slot>
 </template>

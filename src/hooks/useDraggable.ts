@@ -1,5 +1,5 @@
 import type { DnDEntityID, IDnDProvider, UseDraggableOptions } from '@/@types';
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { setDataAttribute, userSelect } from '@/utils';
 
 import { useDnDContext } from './useDnDContext';
@@ -12,6 +12,8 @@ export const useDraggable = <T = void>(
 ) => {
   const elementRef = ref<HTMLElement | null>(null);
   const isDragging = ref(false);
+
+  let dragHandle: HTMLElement | null = null;
 
   const context = useDnDContext<T & IDnDProvider>(contextName);
   if (!context) throw new Error(`DnD context "${contextName}" not found`);
@@ -93,7 +95,7 @@ export const useDraggable = <T = void>(
         point.y - window.scrollY
       );
 
-      const droppable = target?.closest('[data-dnd-droppable]');
+      const droppable = target?.closest('[data-dnd-id]');
 
       if (droppable) {
         const rect = droppable.getBoundingClientRect();
@@ -147,8 +149,6 @@ export const useDraggable = <T = void>(
 
     if (options?.dragEnd) {
       options.dragEnd(context);
-
-      console.log('options');
     } else {
       context.dragEnd?.(context);
     }
@@ -156,6 +156,23 @@ export const useDraggable = <T = void>(
     context.isDragging = false;
     context.overElement = null;
   };
+
+  const isOver = computed(
+    () =>
+      context.overElement?.node === elementRef.value &&
+      context.isDragging &&
+      context.draggingId !== id
+  );
+
+  let wasOver = false;
+  watch([isOver, () => context.isDragging], ([value, isDragging]) => {
+    if (value && !wasOver) {
+      options?.onOver?.(context);
+    } else if (!value && wasOver) {
+      options?.onLeave?.(context);
+    }
+    wasOver = value;
+  });
 
   onMounted(() => {
     if (elementRef.value) {
@@ -180,5 +197,6 @@ export const useDraggable = <T = void>(
     offset,
     currentRect,
     initialRect,
+    isOver,
   };
 };

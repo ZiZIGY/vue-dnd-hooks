@@ -67,18 +67,10 @@
       phone: '+79999999999',
     },
   ]);
-
-  const handleDragEnd = (context: IDnDProvider) => {
-    console.log(context);
-    if (context.overElement) {
-      items.value.push(newUser.value[0]);
-      newUser.value.shift();
-    }
-  };
 </script>
 
 <template>
-  <DnDProvider @drag-end="handleDragEnd">
+  <DnDProvider>
     <TransitionGroup
       name="list"
       tag="div"
@@ -123,6 +115,15 @@
         </tr>
       </TransitionGroup>
     </table>
+
+    <Draggable
+      v-for="item in items"
+      :key="item.id"
+    >
+      <div>
+        <span>{{ item }}</span>
+      </div>
+    </Draggable>
   </DnDProvider>
 </template>
 
@@ -133,8 +134,8 @@
   }
 
   .list-move, /* apply transition to moving elements */
-.list-enter-active,
-.list-leave-active {
+  .list-enter-active,
+  .list-leave-active {
     transition: all 0.5s ease;
   }
 
@@ -144,8 +145,6 @@
     transform: translateX(30px);
   }
 
-  /* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
   .list-leave-active {
     position: absolute;
   }

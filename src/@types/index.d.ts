@@ -14,9 +14,12 @@ export type DraggableProps = {
 };
 
 export interface UseDraggableOptions<T = void> {
+  handle?: string;
   dragStart?: (context: T & IDnDProvider) => void;
   dragMove?: (context: T & IDnDProvider) => void;
   dragEnd?: (context: T & IDnDProvider) => void;
+  onOver?: (context: T & IDnDProvider) => void;
+  onLeave?: (context: T & IDnDProvider) => void;
 }
 
 export interface UseDroppableOptions<T = void> {

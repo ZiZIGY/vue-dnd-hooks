@@ -1,18 +1,22 @@
 <script lang="ts" setup>
   import { DraggableProps } from '@/@types';
-  import { useDnDContext } from '@/hooks/useDnDContext';
   import { useDraggable } from '@/hooks/useDraggable';
   import { useUniqueId } from '@/hooks/useUniqueID';
-  import type { Component } from 'vue';
 
-  const { tag = 'div', id = useUniqueId() } = defineProps<DraggableProps>();
+  const { id = useUniqueId() } = defineProps<DraggableProps>();
 
-  const { elementRef, position, isDragging, offset } = useDraggable(id, 'Test');
-  interface Test {
-    layer?: Component;
-  }
-
-  const context = useDnDContext<Test>('Test');
+  const { elementRef, position, isDragging, offset, isOver } = useDraggable(
+    id,
+    'Test',
+    {
+      onOver: (context) => {
+        console.log('over', context);
+      },
+      onLeave: (context) => {
+        console.log('leave', context);
+      },
+    }
+  );
 </script>
 
 <template>
@@ -29,11 +33,8 @@
       '--offset-y': `-${offset.percentY}%`,
     }"
   >
-    <slot v-if="!context.layer" />
-    <component
-      v-else
-      :is="context.layer"
-    />
+  {{ isOver }}
+    <slot />
   </div>
 </template>
 
