@@ -1,6 +1,6 @@
 import { Ref, onMounted, onUnmounted, ref, watch } from 'vue';
 
-import type { ElementRect } from '@/@types';
+import type { ElementRect } from '@/types';
 
 export const useRect = (elementRef: Ref<HTMLElement | null>) => {
   const initialRect = ref<ElementRect | null>(null);

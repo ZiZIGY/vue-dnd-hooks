@@ -1,52 +1,58 @@
-<script lang="ts" setup>
-  import { DraggableProps } from '@/@types';
+<script setup lang="ts">
+  import { useDnDContext } from '@/hooks/useDnDContext';
   import { useDraggable } from '@/hooks/useDraggable';
-  import { useUniqueId } from '@/hooks/useUniqueID';
+  import { computed } from 'vue';
 
-  const { id = useUniqueId() } = defineProps<DraggableProps>();
+  const context = useDnDContext('Test');
 
-  const { elementRef, position, isDragging, offset, isOver } = useDraggable(
-    id,
-    'Test',
-    {
-      onOver: (context) => {
-        console.log('over', context);
-      },
-      onLeave: (context) => {
-        console.log('leave', context);
-      },
-    }
-  );
+  const { tag = 'div', ...props } = defineProps<{
+    tag?: keyof HTMLElementTagNameMap;
+    index: number;
+    parentArray: any[];
+  }>();
+
+  const { elementRef, isDragging } = useDraggable({
+    context,
+    state: computed(() => ({
+      index: props.index,
+      parentArray: props.parentArray,
+    })),
+  });
 </script>
 
 <template>
-  <div
+  <component
     ref="elementRef"
+    :is="tag"
     :class="{
-      draggable: true,
       dragging: isDragging,
-    }"
-    :style="{
-      '--top': `${position.y}px`,
-      '--left': `${position.x}px`,
-      '--offset-x': `-${offset.percentX}%`,
-      '--offset-y': `-${offset.percentY}%`,
+      meme: true,
     }"
   >
-  {{ isOver }}
-    <slot />
-  </div>
+    <slot></slot>
+    <div
+      v-if="elementRef === context.hoveredElement?.node"
+      class="placeholder"
+    />
+  </component>
 </template>
 
 <style>
-  .draggable {
-    cursor: move;
-  }
   .dragging {
+    background-color: blue;
+  }
+
+  .meme {
+    position: relative;
+  }
+
+  .placeholder {
     position: absolute;
-    pointer-events: none;
-    top: var(--top);
-    left: var(--left);
-    transform: translate(var(--offset-x), var(--offset-y));
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: red;
+    height: 5px;
   }
 </style>

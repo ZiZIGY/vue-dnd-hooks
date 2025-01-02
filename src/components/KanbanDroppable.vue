@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   import { useDnDContext } from '@/hooks/useDnDContext';
   import { useDroppable } from '@/hooks/useDroppable';
 
@@ -6,27 +6,12 @@
 
   const { elementRef, isOver } = useDroppable({
     context,
-    hooks: {
-      onDrop: () => {
-        console.log('onDrop context');
-      },
-    },
   });
 </script>
 
 <template>
-  <div
-    ref="elementRef"
-    class="drop-zone"
-  >
+  <div ref="elementRef">
     {{ isOver }}
     <slot></slot>
   </div>
 </template>
-
-<style>
-  .drop-zone {
-    padding: 10px;
-    background-color: beige;
-  }
-</style>

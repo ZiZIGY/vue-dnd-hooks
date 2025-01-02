@@ -1,18 +1,44 @@
 <script setup lang="ts">
   import { useDnDProvider } from '@/hooks/useDnDProvider';
-  import { IDnDProvider } from '@/@types';
-  const emit = defineEmits<{
-    (e: 'drag-end', context: IDnDProvider): void;
-  }>();
+  import { DnDProvider } from '@/types';
 
-  const provider = useDnDProvider('Test', {
-    dragEnd: (context) => {
-      emit('drag-end', context);
+  interface Data {
+    drag: {
+      index: number;
+      parentArray: any[];
+    };
+    over: {
+      index: number;
+      parentArray: any[];
+    };
+  }
+
+  const provider = useDnDProvider<Data>('Test', {
+    hooks: {
+      onEnd: (context) => {
+        console.log('onEnd context');
+        emit('drop', context);
+      },
     },
   });
+
+  const emit = defineEmits<{
+    (e: 'drop', context: DnDProvider<Data>): void;
+  }>();
 </script>
 
 <template>
-  {{ provider }}
+  <pre>
+    {{ provider }}
+  </pre>
   <slot></slot>
 </template>
+
+<style>
+  pre {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 1000;
+  }
+</style>

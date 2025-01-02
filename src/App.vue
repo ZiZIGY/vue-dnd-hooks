@@ -1,70 +1,50 @@
 <script setup lang="ts">
-  import DnDProvider from './components/DnDProvider.vue';
-  import Draggable from './components/Draggable.vue';
-  import Droppable from './components/Droppable.vue';
-  import { IDnDProvider } from './@types';
   import { ref } from 'vue';
+  import DnDProvider from './components/DnDProvider.vue';
+  import { useUniqueId } from './hooks/useUniqueID';
+  import KanbanItem from './components/KanbanItem.vue';
 
-  interface IUser {
-    id: number;
-    name: string;
-    lastName: string;
-    age: number;
-    email: string;
-    phone: string;
+  interface IKanbanItem {
+    id: string;
+    title: string;
   }
 
-  const newUser = ref<IUser[]>([
-    {
-      id: 6,
-      name: 'New',
-      lastName: 'User',
-      age: 20,
-      email: 'new.user@example.com',
-      phone: '+79999999999',
-    },
-  ]);
+  interface IKanban {
+    id: string;
+    name: string;
+    items: IKanbanItem[];
+  }
 
-  const items = ref<IUser[]>([
+  const kanban = ref<IKanban[]>([
     {
-      id: 1,
-      name: 'John',
-      lastName: 'Doe',
-      age: 20,
-      email: 'john.doe@example.com',
-      phone: '+79999999999',
+      id: useUniqueId(),
+      name: 'Начало',
+      items: [
+        {
+          id: useUniqueId(),
+          title: 'Сделать что-то',
+        },
+      ],
     },
     {
-      id: 2,
-      name: 'Jane',
-      lastName: 'Doe',
-      age: 20,
-      email: 'jane.doe@example.com',
-      phone: '+79999999999',
+      id: useUniqueId(),
+      name: 'В процессе',
+      items: [
+        {
+          id: useUniqueId(),
+          title: 'В процессе что то',
+        },
+      ],
     },
     {
-      id: 3,
-      name: 'John',
-      lastName: 'Smith',
-      age: 20,
-      email: 'john.smith@example.com',
-      phone: '+79999999999',
-    },
-    {
-      id: 4,
-      name: 'John',
-      lastName: 'Malkovich',
-      age: 20,
-      email: 'john.malkovich@example.com',
-      phone: '+79999999999',
-    },
-    {
-      id: 5,
-      name: 'John',
-      lastName: 'Agile',
-      age: 20,
-      email: 'john.agile@example.com',
-      phone: '+79999999999',
+      id: useUniqueId(),
+      name: 'Завершено',
+      items: [
+        {
+          id: useUniqueId(),
+          title: 'Завершено что то',
+        },
+      ],
     },
   ]);
 </script>
@@ -72,71 +52,34 @@
 <template>
   <DnDProvider>
     <TransitionGroup
+      class="kanban"
       name="list"
       tag="div"
     >
-      <Draggable
-        v-for="item in newUser"
+      <KanbanItem
+        v-for="(item, index) in kanban"
         :key="item.id"
-      >
-        <div>
-          <span>{{ item }}</span>
-        </div>
-      </Draggable>
+        :item="item"
+        :index="index"
+        :array="kanban"
+      />
     </TransitionGroup>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Last Name</th>
-          <th>Age</th>
-          <th>Email</th>
-          <th>Phone</th>
-        </tr>
-      </thead>
-      <TransitionGroup
-        tag="tbody"
-        name="list"
-      >
-        <tr
-          v-for="item in items"
-          :key="item.id"
-        >
-          <td>{{ item.name }}</td>
-          <td>{{ item.lastName }}</td>
-          <td>{{ item.age }}</td>
-          <td>{{ item.email }}</td>
-          <td>{{ item.phone }}</td>
-        </tr>
-        <tr>
-          <td colspan="5">
-            <Droppable />
-          </td>
-        </tr>
-      </TransitionGroup>
-    </table>
-
-    <Draggable
-      v-for="item in items"
-      :key="item.id"
-    >
-      <div>
-        <span>{{ item }}</span>
-      </div>
-    </Draggable>
   </DnDProvider>
 </template>
 
 <style>
-  .table tr,
-  .table div {
-    height: 50px;
+  .kanban {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    padding: 10px;
+    height: 50vh;
+    background-color: #f0f0f0;
   }
-
-  .list-move, /* apply transition to moving elements */
+  .list-move,
   .list-enter-active,
   .list-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
   .list-enter-from,
@@ -147,5 +90,8 @@
 
   .list-leave-active {
     position: absolute;
+  }
+  *[data-pressed] {
+    background-color: red;
   }
 </style>

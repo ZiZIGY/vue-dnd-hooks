@@ -1,16 +1,24 @@
-import { IDnDProvider, IDnDProviderOptions } from '@/@types';
 import { provide, reactive } from 'vue';
+
+import { DnDProvider } from '@/types';
 
 export const useDnDProvider = <T = void>(
   name: string,
-  options: IDnDProviderOptions
+  options?: {
+    hooks?: {
+      onStart?: (context: DnDProvider<T>) => void;
+      onEnd?: (context: DnDProvider<T>) => void;
+    };
+    state?: Partial<T>;
+  }
 ) => {
   const provider = reactive({
     isDragging: false,
     draggingElement: null,
-    overElement: null,
-    ...options,
-  } satisfies IDnDProvider) as T & IDnDProvider;
+    hoveredElement: null,
+    ...options?.state,
+    hooks: options?.hooks,
+  } as DnDProvider<T>);
 
   provide(name, provider);
 

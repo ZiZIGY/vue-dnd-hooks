@@ -1,193 +1,292 @@
-import type { DnDEntityID, IDnDProvider, UseDraggableOptions } from '@/@types';
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { setDataAttribute, userSelect } from '@/utils';
+import { DnDProvider, ICoordinates } from '@/types';
+import { computed, onMounted, onUnmounted, ref, shallowReactive } from 'vue';
+import { isGroupsCompatible, userSelect } from '@/utils';
 
-import { useDnDContext } from './useDnDContext';
 import { useRect } from './useRect';
 
-export const useDraggable = <T = void>(
-  id: DnDEntityID,
-  contextName: string,
-  options?: UseDraggableOptions<T>
-) => {
+interface UseDraggableOptions<T> {
+  context?: DnDProvider<T>;
+  state?: any;
+  group?: string | string[];
+  hooks?: {
+    onOver?: (context?: DnDProvider<T>, event?: PointerEvent) => void;
+    onLeave?: (context?: DnDProvider<T>, event?: PointerEvent) => void;
+    onStart?: (context?: DnDProvider<T>, event?: PointerEvent) => void;
+    onMove?: (context?: DnDProvider<T>, event?: PointerEvent) => void;
+    onEnd?: (context?: DnDProvider<T>, event?: PointerEvent) => void;
+  };
+}
+
+interface IOffset extends ICoordinates {
+  percentX: number;
+  percentY: number;
+}
+
+interface IScroll extends ICoordinates {
+  lastX: number;
+  lastY: number;
+}
+
+/**
+ * Hook for creating a draggable element
+ * @template T - Type of data associated with the draggable element
+ * @param {UseDraggableOptions<C>} options - Configuration options for the draggable element
+ * @param {DnDProvider} [options.context] - DnD context for interaction with other elements
+ * @param {C} [options.state] - Data associated with the draggable element
+ * @param {Object} [options.hooks] - Event handlers
+ * @param {Function} [options.hooks.onStart] - Called when dragging starts
+ * @param {Function} [options.hooks.onMove] - Called when element is being dragged
+ * @param {Function} [options.hooks.onOver] - Called when hovering over another element
+ * @param {Function} [options.hooks.onLeave] - Called when leaving another element
+ * @param {Function} [options.hooks.onEnd] - Called when dragging ends
+ *
+ * @returns {Object} Object containing refs and state
+ * @property {Ref<HTMLElement | null>} elementRef - Ref for binding to DOM element
+ * @property {Ref<boolean>} isDragging - Current dragging state
+ * @property {ICoordinates} position - Current element position
+ * @property {IOffset} offset - Offset from initial point
+ * @property {ComputedRef<boolean>} isOver - Whether cursor is over the element
+ * @property {Ref<ElementRect | null>} initialRect - Initial size and position
+ * @property {Ref<ElementRect | null>} currentRect - Current size and position
+ *
+ * @example
+ * ```typescript
+ * interface ItemData {
+ *   id: string;
+ *   title: string;
+ * }
+ *
+ * const { elementRef, isDragging } = useDraggable<ItemData>({
+ *   data: { id: '1', title: 'Item' },
+ *   hooks: {
+ *     onStart: (context) => console.log('Started dragging'),
+ *     onEnd: (context) => console.log('Ended dragging')
+ *   }
+ * });
+ * ```
+ */
+export const useDraggable = <C>(options?: UseDraggableOptions<C>) => {
   const elementRef = ref<HTMLElement | null>(null);
-  const isDragging = ref(false);
+  const isDragging = ref<boolean>(false);
 
-  let dragHandle: HTMLElement | null = null;
-
-  const context = useDnDContext<T & IDnDProvider>(contextName);
-  if (!context) throw new Error(`DnD context "${contextName}" not found`);
-
-  const { currentRect, initialRect } = useRect(elementRef);
-
-  const position = reactive({
+  const position = shallowReactive<ICoordinates>({
     x: 0,
     y: 0,
   });
 
-  const offset = reactive({
+  const offset = shallowReactive<IOffset>({
     x: 0,
     y: 0,
     percentX: 0,
     percentY: 0,
   });
 
-  let lastScrollX = window.scrollX;
-  let lastScrollY = window.scrollY;
+  const isOver = computed(
+    () => options?.context?.hoveredElement?.node === elementRef.value
+  );
 
-  const handleScroll = () => {
-    if (!isDragging.value) return;
+  const { currentRect, initialRect } = useRect(elementRef);
 
-    const dx = window.scrollX - lastScrollX;
-    const dy = window.scrollY - lastScrollY;
+  const scroll: IScroll = {
+    x: window.scrollX,
+    y: window.scrollY,
+    lastX: window.scrollX,
+    lastY: window.scrollY,
+  };
+
+  const dragScroll = () => {
+    const dx = window.scrollX - scroll.lastX;
+    const dy = window.scrollY - scroll.lastY;
 
     position.x += dx;
     position.y += dy;
 
-    lastScrollX = window.scrollX;
-    lastScrollY = window.scrollY;
+    scroll.lastX = window.scrollX;
+    scroll.lastY = window.scrollY;
   };
 
-  const start = (event: PointerEvent) => {
-    if (!currentRect.value) return;
+  const dragCancel = (event: KeyboardEvent) => {
+    event.stopPropagation();
 
-    context.isDragging = true;
+    if (!elementRef.value) return;
 
-    userSelect.disable();
+    if (event.key === 'Escape') {
+      isDragging.value = false;
+
+      elementRef.value.removeAttribute('data-pressed');
+      elementRef.value.removeAttribute('aria-pressed');
+    }
+
+    document.removeEventListener('pointermove', dragMove);
+    document.removeEventListener('pointerup', dragEnd);
+    document.removeEventListener('wheel', dragScroll);
+    document.removeEventListener('scroll', dragScroll);
+    document.removeEventListener('keypress', dragCancel);
+
+    if (options?.context) {
+      options.context.isDragging = isDragging.value;
+
+      options.context.hoveredElement?.node?.removeAttribute('data-hovered');
+
+      options.context.draggingElement = null;
+      options.context.hoveredElement = null;
+    }
+
+    options?.hooks?.onEnd?.(options?.context);
+
+    elementRef.value.addEventListener('pointerover', dragOver);
+    elementRef.value.addEventListener('pointerleave', dragLeave);
+  };
+
+  const dragStart = (event: PointerEvent) => {
+    if (!elementRef.value) return;
+
+    event.stopPropagation();
+
     isDragging.value = true;
 
+    userSelect.disable();
+
+    offset.x = event.pageX - (currentRect.value?.left || 0);
+    offset.y = event.pageY - (currentRect.value?.top || 0);
+
+    offset.percentX = (offset.x / (currentRect.value?.width || 0)) * 100;
+    offset.percentY = (offset.y / (currentRect.value?.height || 0)) * 100;
+
     position.x = event.pageX;
     position.y = event.pageY;
 
-    offset.x = event.pageX - currentRect.value.left;
-    offset.y = event.pageY - currentRect.value.top;
+    if (options?.context) {
+      options.context.isDragging = isDragging.value;
 
-    offset.percentX = (offset.x / currentRect.value.width) * 100;
-    offset.percentY = (offset.y / currentRect.value.height) * 100;
-
-    lastScrollX = window.scrollX;
-    lastScrollY = window.scrollY;
-
-    document.addEventListener('pointermove', move);
-    document.addEventListener('pointerup', end);
-    window.addEventListener('scroll', handleScroll);
-
-    options?.dragStart?.(context);
-  };
-
-  const move = (event: PointerEvent) => {
-    position.x = event.pageX;
-    position.y = event.pageY;
-
-    if (!currentRect.value) return;
-
-    // Проверяем только 4 крайние точки
-    const points = [
-      { x: position.x - currentRect.value.width / 2, y: position.y }, // левая точка
-      { x: position.x + currentRect.value.width / 2, y: position.y }, // правая точка
-      { x: position.x, y: position.y - currentRect.value.height / 2 }, // верхняя точка
-      { x: position.x, y: position.y + currentRect.value.height / 2 }, // нижняя точка
-    ];
-
-    for (const point of points) {
-      const target = document.elementFromPoint(
-        point.x - window.scrollX,
-        point.y - window.scrollY
-      );
-
-      const droppable = target?.closest('[data-dnd-id]');
-
-      if (droppable) {
-        const rect = droppable.getBoundingClientRect();
-        const droppableId = droppable.getAttribute('data-dnd-id');
-
-        if (!droppableId) return;
-
-        const dragRect = {
-          x: position.x - window.scrollX - currentRect.value.width / 2,
-          y: position.y - window.scrollY - currentRect.value.height / 2,
-          w: currentRect.value.width,
-          h: currentRect.value.height,
-        };
-
-        const dropRect = {
-          x: rect.left,
-          y: rect.top,
-          w: rect.width,
-          h: rect.height,
-        };
-
-        if (
-          !(
-            dragRect.x > dropRect.x + dropRect.w ||
-            dragRect.x + dragRect.w < dropRect.x ||
-            dragRect.y > dropRect.y + dropRect.h ||
-            dragRect.y + dragRect.h < dropRect.y
-          )
-        ) {
-          context.overElement = {
-            id: droppableId,
-            node: droppable as HTMLElement,
-          };
-          return;
-        }
-      } else {
-        context.overElement = null;
-      }
+      options.context.draggingElement = {
+        node: elementRef.value,
+        state: options.state,
+        group: options.group,
+      };
     }
+    options?.hooks?.onStart?.(options?.context, event);
 
-    options?.dragMove?.(context);
+    elementRef.value.setAttribute('data-pressed', 'true');
+    elementRef.value.setAttribute('aria-pressed', 'true');
+
+    document.addEventListener('pointermove', dragMove);
+    document.addEventListener('pointerup', dragEnd);
+    document.addEventListener('scroll', dragScroll);
+    document.addEventListener('keydown', dragCancel);
+
+    elementRef.value.removeEventListener('pointerover', dragOver);
+    elementRef.value.removeEventListener('pointerleave', dragLeave);
   };
 
-  const end = () => {
-    userSelect.enable();
+  const dragMove = (event: PointerEvent) => {
+    if (!elementRef.value) return;
+
+    event.stopPropagation();
+
+    position.x = event.pageX;
+    position.y = event.pageY;
+
+    options?.hooks?.onMove?.(options?.context, event);
+  };
+
+  const dragOver = (event: PointerEvent) => {
+    event.stopPropagation();
+    if (options?.context?.draggingElement?.node?.contains(event.target as Node))
+      return;
+
+    if (
+      !options?.context?.isDragging &&
+      options?.context?.draggingElement?.node !== elementRef.value
+    )
+      return;
+
+    console.log('hover');
+
+    if (
+      !isGroupsCompatible(
+        options?.context?.draggingElement?.group,
+        options?.group
+      )
+    )
+      return;
+
+    options.context.hoveredElement = {
+      node: elementRef.value,
+      state: options.state,
+    };
+
+    options?.hooks?.onOver?.(options?.context, event);
+
+    elementRef.value?.setAttribute('data-hovered', 'true');
+  };
+
+  const dragLeave = (event: PointerEvent) => {
+    event.stopPropagation();
+
+    if (options?.context?.draggingElement?.node?.contains(event.target as Node))
+      return;
+
+    if (
+      !options?.context?.isDragging &&
+      options?.context?.draggingElement?.node !== elementRef.value
+    )
+      return;
+
+    options?.hooks?.onLeave?.(options?.context, event);
+
+    options.context.hoveredElement = null;
+    elementRef.value?.removeAttribute('data-hovered');
+  };
+
+  const dragEnd = (event: PointerEvent) => {
+    if (!elementRef.value) return;
+
+    event.stopPropagation();
+
     isDragging.value = false;
 
-    document.removeEventListener('pointermove', move);
-    document.removeEventListener('pointerup', end);
-    window.removeEventListener('scroll', handleScroll);
+    position.x = event.pageX;
+    position.y = event.pageY;
 
-    if (options?.dragEnd) {
-      options.dragEnd(context);
-    } else {
-      context.dragEnd?.(context);
+    if (options?.context) {
+      options.context.isDragging = isDragging.value;
+
+      options.context.hoveredElement?.node?.removeAttribute('data-hovered');
+
+      if (options.hooks?.onEnd) {
+        options.hooks.onEnd(options.context, event);
+      } else options.context.hooks?.onEnd?.(options.context, event);
+
+      options.context.draggingElement = null;
+      options.context.hoveredElement = null;
     }
 
-    context.isDragging = false;
-    context.overElement = null;
+    elementRef.value.removeAttribute('data-pressed');
+    elementRef.value.removeAttribute('aria-pressed');
+
+    document.removeEventListener('pointermove', dragMove);
+    document.removeEventListener('pointerup', dragEnd);
+    document.removeEventListener('scroll', dragScroll);
+
+    elementRef.value.addEventListener('pointerover', dragOver);
+    elementRef.value.addEventListener('pointerleave', dragLeave);
   };
 
-  const isOver = computed(
-    () =>
-      context.overElement?.node === elementRef.value &&
-      context.isDragging &&
-      context.draggingId !== id
-  );
-
-  let wasOver = false;
-  watch([isOver, () => context.isDragging], ([value, isDragging]) => {
-    if (value && !wasOver) {
-      options?.onOver?.(context);
-    } else if (!value && wasOver) {
-      options?.onLeave?.(context);
-    }
-    wasOver = value;
-  });
-
   onMounted(() => {
-    if (elementRef.value) {
-      setDataAttribute(elementRef.value, 'dndId', id.toString());
-      elementRef.value.addEventListener('pointerdown', start);
-    }
+    if (!elementRef.value) return;
+
+    elementRef.value.setAttribute('data-dnd-entity', 'true');
+    elementRef.value.setAttribute('aria-grabbed', 'true');
+
+    elementRef.value.addEventListener('pointerover', dragOver);
+    elementRef.value.addEventListener('pointerleave', dragLeave);
+    elementRef.value.addEventListener('pointerdown', dragStart);
   });
 
   onUnmounted(() => {
-    if (elementRef.value)
-      elementRef.value.removeEventListener('pointerdown', start);
-
-    document.removeEventListener('pointermove', move);
-    document.removeEventListener('pointerup', end);
-    window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('pointermove', dragMove);
+    document.removeEventListener('pointerup', dragEnd);
   });
 
   return {
@@ -195,8 +294,8 @@ export const useDraggable = <T = void>(
     isDragging,
     position,
     offset,
-    currentRect,
-    initialRect,
     isOver,
+    initialRect,
+    currentRect,
   };
 };
