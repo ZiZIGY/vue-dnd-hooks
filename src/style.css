@@ -1,0 +1,13 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.provider {
+  position: fixed;
+  top: 0;
+  right: 0;
+
+  height: 100vh;
+  pointer-events: none;
+}

@@ -1,0 +1,43 @@
+{
+  "name": "vue-dnd-hooks",
+  "version": "0.1.3",
+  "private": false,
+  "description": "Vue 3 Drag and Drop Hooks Library",
+  "author": "ZIZIGY",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "vue",
+    "drag-and-drop",
+    "hooks",
+    "typescript"
+  ],
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  }
+}
