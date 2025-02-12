@@ -15,9 +15,7 @@ export const useDrop = (options?: IUseDropOptions) => {
     registerDropZone(elementRef.value);
   });
 
-  onBeforeUnmount(() => {
-    unregisterDropZone();
-  });
+  onBeforeUnmount(unregisterDropZone);
 
   return {
     elementRef,

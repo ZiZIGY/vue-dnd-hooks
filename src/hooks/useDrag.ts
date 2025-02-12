@@ -84,6 +84,7 @@ export const useDrag = <T>(options?: IUseElementOptions<T>) => {
     }
   };
 
+  // Lifecycle hooks for element registration
   onMounted(() => {
     if (!elementRef.value) return;
     registerElement(elementRef.value);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import Kanban from './components/examples/Kanban.vue';
   import { useDnDStore } from './hooks/useDnDStore';
+
   const store = useDnDStore();
 </script>
 
@@ -14,14 +15,9 @@
       top: store.coordinates?.y + 'px',
     }"
   >
-    <div
-      v-for="[id, element] in store.draggingElements"
-      :key="id"
-      v-html="element.defaultOuterHTML"
-    />
   </div>
   <pre>
-    {{ store.hovered }}
+    {{ store }}
   </pre>
 </template>
 

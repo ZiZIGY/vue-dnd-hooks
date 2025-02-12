@@ -20,7 +20,6 @@ export const useDraggingManager = (id: string) => {
     store.isDragging = true;
     cssActions.draggingStart();
 
-    // Сразу определяем элемент/зону под курсором
     detectElement(event);
   };
 
@@ -29,24 +28,35 @@ export const useDraggingManager = (id: string) => {
     if (!element) return;
 
     if (isSelected) {
-      store.selectedElements.forEach((value, key) =>
-        store.draggingElements.set(key, value)
-      );
+      store.selectedElements.forEach((value, key) => {
+        if (store.draggingElements instanceof Map) {
+          store.draggingElements.set(key, value);
+        } else {
+          store.draggingElements = new Map([[key, value]]);
+        }
+      });
     } else {
-      store.draggingElements.set(id, element);
-      store.selectedElements = new Map();
+      store.draggingElements = element;
     }
 
-    store.draggingElements.forEach((element) => {
-      element.node?.setAttribute('data-dnd-dragging', 'true');
-    });
+    if (store.draggingElements instanceof Map) {
+      store.draggingElements.forEach((element) => {
+        element.node?.setAttribute('data-dnd-dragging', 'true');
+      });
+    } else {
+      store.draggingElements?.node?.setAttribute('data-dnd-dragging', 'true');
+    }
   };
 
   const clearDraggingElements = () => {
-    store.draggingElements.forEach((element) => {
-      element.node?.removeAttribute('data-dnd-dragging');
-    });
-    store.draggingElements = new Map();
+    if (store.draggingElements instanceof Map) {
+      store.draggingElements.forEach((element) => {
+        element.node?.removeAttribute('data-dnd-dragging');
+      });
+    } else {
+      store.draggingElements?.node?.removeAttribute('data-dnd-dragging');
+    }
+    store.draggingElements = undefined;
   };
 
   const detectElement = (event: PointerEvent) => {
@@ -59,13 +69,16 @@ export const useDraggingManager = (id: string) => {
       return;
     }
 
-    // Проверяем все драгающиеся элементы
-    const isDraggingElement = Array.from(store.draggingElements.keys()).some(
-      (dragId) => element.closest(`[data-dnd-id="${dragId}"]`)
-    );
-    if (isDraggingElement) return;
+    if (store.draggingElements instanceof Map) {
+      const isDraggingElement = Array.from(store.draggingElements.keys()).some(
+        (dragId) => element.closest(`[data-dnd-id="${dragId}"]`)
+      );
+      if (isDraggingElement) return;
+    } else {
+      const isDraggingElement = element.closest(`[data-dnd-id="${id}"]`);
+      if (isDraggingElement) return;
+    }
 
-    // Остальная логика...
     const dropZone = element.closest('[data-dnd-drop-zone]');
     const newZoneId = dropZone?.getAttribute('data-dnd-id') || null;
 

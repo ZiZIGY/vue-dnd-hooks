@@ -2,6 +2,9 @@ import type { IUseDropOptions } from '../types';
 import { computed } from 'vue';
 import { useDnDStore } from './useDnDStore';
 
+/**
+ * Manages drop zone functionality
+ */
 export const useDropManager = <T>(id: string, options?: IUseDropOptions<T>) => {
   const store = useDnDStore();
 
@@ -27,17 +30,20 @@ export const useDropManager = <T>(id: string, options?: IUseDropOptions<T>) => {
 
   const isNotAllowed = computed(() => {
     const zone = store.zones.get(id);
-    if (!zone) return false;
 
-    if (!store.isDragging) return false;
+    if (!store.isDragging && !zone?.group.length) return false;
 
-    if (!zone.group.length) return false;
+    if (store.draggingElements instanceof Map) {
+      return Array.from(store.draggingElements.values()).some((element) => {
+        if (!element.group.length) return true;
 
-    return Array.from(store.draggingElements.values()).some((element) => {
-      if (!element.group.length) return true;
-
-      return !element.group.some((group) => zone.group.includes(group));
-    });
+        return !element.group.some((group) => zone?.group.includes(group));
+      });
+    } else {
+      return store.draggingElements?.group.some((group) =>
+        zone?.group.includes(group)
+      );
+    }
   });
 
   const handleDrop = () => {

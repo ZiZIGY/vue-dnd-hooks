@@ -1,3 +1,6 @@
+/**
+ * Manages CSS actions for drag and drop
+ */
 export const cssActions = {
   default: {
     userSelect: '',

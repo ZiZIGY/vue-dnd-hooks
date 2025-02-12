@@ -1,6 +1,9 @@
 import { computed } from 'vue';
 import { useDnDStore } from './useDnDStore';
 
+/**
+ * Manages element selection functionality
+ */
 export const useSelectionManager = (id: string) => {
   const store = useDnDStore();
 
@@ -8,7 +11,7 @@ export const useSelectionManager = (id: string) => {
     let currentId = childId;
     while (currentId) {
       if (currentId === parentId) return true;
-      currentId = store.elements.get(currentId)?.parentId || null;
+      currentId = store.elements.get(currentId)?.state?.parentId || null;
     }
     return false;
   };
@@ -19,13 +22,13 @@ export const useSelectionManager = (id: string) => {
   const clearSelectedElements = () => (store.selectedElements = new Map());
 
   const deselectParent = (elementId: string) => {
-    let parentId = store.elements.get(elementId)?.parentId;
+    let parentId = store.elements.get(elementId)?.state?.parentId;
     while (parentId) {
       if (store.selectedElements.has(parentId)) {
         store.selectedElements.delete(parentId);
         return;
       }
-      parentId = store.elements.get(parentId)?.parentId || null;
+      parentId = store.elements.get(parentId)?.state?.parentId || undefined;
     }
   };
 
@@ -58,7 +61,9 @@ export const useSelectionManager = (id: string) => {
     selectElement();
   };
 
-  const isElementSelected = computed(() => store.selectedElements.has(id));
+  const isElementSelected = computed<boolean>(() =>
+    store.selectedElements.has(id)
+  );
 
   return {
     selectElement,

@@ -19,6 +19,9 @@
     "src",
     "README.md"
   ],
+  "scripts": {
+    "dev": "vite"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

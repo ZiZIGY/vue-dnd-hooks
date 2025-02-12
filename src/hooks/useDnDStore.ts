@@ -72,7 +72,7 @@ export const useDnDStore = () => {
       window.addEventListener('keyup', onKeyUp);
       window.addEventListener('blur', onBlur);
 
-      // Очистка при уничтожении scope
+      // Cleanup event listeners when scope is destroyed
       onScopeDispose(() => {
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('keyup', onKeyUp);
