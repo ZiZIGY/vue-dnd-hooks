@@ -1,7 +1,9 @@
 import { onBeforeUnmount, onMounted } from 'vue';
 
 import type { IUseDragOptions } from '../types';
+import { useDnDStore } from './useDnDStore';
 import { useElementManager } from '../managers/useElementManager';
+import { useInteractionManager } from '../managers/useInteractionManager';
 import { useSensor } from './useSensor';
 
 export const useDrag = (options?: IUseDragOptions) => {
@@ -13,9 +15,15 @@ export const useDrag = (options?: IUseDragOptions) => {
     isSelected,
   } = useElementManager(options);
 
-  const { position, activate, track, deactivate } = useSensor(elementRef);
+  const { disableInteractions, enableInteractions } = useInteractionManager();
+
+  const store = useDnDStore();
+
+  const { activate, track, deactivate } = useSensor(elementRef);
 
   const handleDragStart = (event: PointerEvent) => {
+    disableInteractions();
+
     activate(event);
 
     document.addEventListener('pointermove', handleDragMove);
@@ -27,7 +35,9 @@ export const useDrag = (options?: IUseDragOptions) => {
   };
 
   const handleDragEnd = (event: PointerEvent) => {
-    deactivate();
+    enableInteractions();
+
+    deactivate(event);
 
     document.removeEventListener('pointermove', handleDragMove);
     document.removeEventListener('pointerup', handleDragEnd);
@@ -37,6 +47,7 @@ export const useDrag = (options?: IUseDragOptions) => {
   onBeforeUnmount(unregisterElement);
 
   return {
+    pointerPosition: store.pointerPosition,
     elementRef,
     isDragging,
     isSelected,

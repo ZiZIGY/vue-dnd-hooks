@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 
 import type { IUseDragOptions } from '../types';
+import { draggableDataName } from '../utils/namespaces';
 import { useDnDStore } from '../composables/useDnDStore';
 
 export const useElementManager = (options?: IUseDragOptions) => {
@@ -9,27 +10,35 @@ export const useElementManager = (options?: IUseDragOptions) => {
   const elementRef = ref<HTMLElement | null>(null);
 
   const isSelected = computed<boolean>(() =>
-    store.selectedElements.some((element) => element.node === elementRef.value)
+    store.selectedElements.value.some(
+      (element) => element.node === elementRef.value
+    )
   );
-  const isDragging = computed<boolean>(
-    () =>
-      store.draggingElements?.some(
-        (element) => element.node === elementRef.value
-      ) ?? false
+
+  const isDragging = computed<boolean>(() =>
+    store.draggingElements.value.some(
+      (element) => element.node === elementRef.value
+    )
   );
 
   const registerElement = () => {
-    store.elements.push({
+    if (!elementRef.value) throw new Error('ElementRef is not set');
+
+    store.elements.value.push({
       node: elementRef.value,
       groups: options?.groups ?? [],
+      layer: options?.layer ?? null,
+      defaultLayer: options?.layer ?? null,
     });
+
+    elementRef.value.setAttribute(draggableDataName, 'true');
   };
 
   const unregisterElement = () => {
-    const index = store.elements.findIndex(
+    const index = store.elements.value.findIndex(
       (element) => element.node === elementRef.value
     );
-    if (index !== -1) store.elements.splice(index, 1);
+    if (index !== -1) store.elements.value.splice(index, 1);
   };
 
   return {

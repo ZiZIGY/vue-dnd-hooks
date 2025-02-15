@@ -1,39 +1,41 @@
-import { getDelta, getOffset } from '../utils/collision';
-
-import type { IPointerPosition } from '../types';
-import { ref, type Ref } from 'vue';
+import type { Ref } from 'vue';
+import { getOffset } from '../utils/geometry';
+import { useDnDStore } from './useDnDStore';
 
 export const usePointer = (elementRef: Ref<HTMLElement | null>) => {
-  const position = ref<IPointerPosition | undefined>(undefined);
+  const store = useDnDStore();
 
   const onPointerStart = (event: PointerEvent) => {
-    position.value = {
-      start: { x: event.clientX, y: event.clientY },
-      current: { x: event.clientX, y: event.clientY },
-      delta: { x: 0, y: 0 },
-      offset: getOffset(elementRef.value, {
-        x: event.clientX,
-        y: event.clientY,
-      }),
+    store.pointerPosition.start.value = { x: event.clientX, y: event.clientY };
+    store.pointerPosition.current.value = {
+      x: event.clientX,
+      y: event.clientY,
     };
+
+    const { pixel, percent } = getOffset(elementRef.value, {
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    store.pointerPosition.offset.pixel.value = pixel;
+    store.pointerPosition.offset.percent.value = percent;
   };
 
   const onPointerMove = (event: PointerEvent) => {
-    if (!position.value) return;
-
-    position.value.current = { x: event.clientX, y: event.clientY };
-    position.value.delta = getDelta(
-      position.value.start,
-      position.value.current
-    );
+    store.pointerPosition.current.value = {
+      x: event.clientX,
+      y: event.clientY,
+    };
   };
 
   const onPointerEnd = () => {
-    position.value = undefined;
+    store.pointerPosition.current.value = null;
+    store.pointerPosition.start.value = null;
+    store.pointerPosition.offset.pixel.value = null;
+    store.pointerPosition.offset.percent.value = null;
   };
 
   return {
-    position,
     onPointerStart,
     onPointerMove,
     onPointerEnd,
