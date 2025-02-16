@@ -1,5 +1,11 @@
-import type { IDnDStore, IDragElement, IDropZone, IPoint } from '../types';
-import { effectScope, ref } from 'vue';
+import type {
+  IDnDStore,
+  IDragElement,
+  IDraggingElement,
+  IDropZone,
+  IPoint,
+} from '../types';
+import { computed, effectScope, ref, type Component } from 'vue';
 
 let initialized = false;
 let state: IDnDStore;
@@ -9,14 +15,17 @@ export const useDnDStore = () => {
     const scope = effectScope(true);
 
     state = scope.run(() => ({
-      isDragging: ref<boolean>(false),
-      activeContainerName: ref<string | null>(null),
-
+      isDragging: computed<boolean>(
+        () => state.draggingElements.value.length > 0
+      ),
+      activeContainer: {
+        component: ref<Component | null>(null),
+        ref: ref<HTMLElement | null>(null),
+      },
       elements: ref<IDragElement[]>([]),
-      draggingElements: ref<IDragElement[]>([]),
+      draggingElements: ref<IDraggingElement[]>([]),
       selectedElements: ref<IDragElement[]>([]),
       zones: ref<IDropZone[]>([]),
-      dragContainers: new Map(),
 
       hovered: {
         zone: ref<IDropZone | null>(null),

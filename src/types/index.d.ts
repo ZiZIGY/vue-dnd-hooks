@@ -2,17 +2,27 @@ import type { Component, Ref } from 'vue';
 
 export interface IDnDStore {
   isDragging: Ref<boolean>;
-  activeContainerName: Ref<string | null>;
+  activeContainer: IActiveContainer;
   elements: Ref<IDragElement[]>;
   selectedElements: Ref<IDragElement[]>;
-  draggingElements: Ref<IDragElement[]>;
+  draggingElements: Ref<IDraggingElement[]>;
   zones: Ref<IDropZone[]>;
   hovered: {
     zone: Ref<IDropZone | null>;
     element: Ref<IDragElement | null>;
   };
-  dragContainers: Map<string, Component>;
   pointerPosition: IPointerPosition;
+}
+
+export interface IAutoScrollOptions {
+  threshold?: number;
+  speed?: number;
+  disabled?: boolean;
+}
+
+export interface IActiveContainer {
+  component: Ref<Component | null>;
+  ref: Ref<HTMLElement | null>;
 }
 
 export interface IPointerPosition {
@@ -31,6 +41,11 @@ export interface IDragElement {
   defaultLayer: Component | null;
 }
 
+export interface IDraggingElement extends IDragElement {
+  initialHTML: string;
+  initialRect?: DOMRect;
+}
+
 export interface IDropZone {
   node: HTMLElement | Element | null;
   groups: string[];
@@ -42,9 +57,16 @@ export interface IPoint {
 }
 
 export interface IUseDragOptions {
-  groups: string[];
-  onEnd: () => {};
-  layer: Component | null;
+  groups?: string[];
+  hooks?: {
+    // onEnd?: () => void;
+    // onStart?: () => void;
+    // onMove?: () => void;
+    // onScroll?: () => void;
+    // onOver?: () => void;
+  };
+  layer?: Component | null;
+  container?: Component;
 }
 
 export interface IBoundingBox {

@@ -1,5 +1,3 @@
-import type { IPoint } from '../types';
-
 export const isDescendant = (
   element: HTMLElement | null,
   container: HTMLElement

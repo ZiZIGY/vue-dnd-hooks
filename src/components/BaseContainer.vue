@@ -1,5 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { useDragContainer } from '../composables/useDragContainer';
+
+  const { elementRef } = useDragContainer();
+</script>
 
 <template>
-  <div>123123asdasdas</div>
+  <div ref="elementRef">123123asdasdas</div>
 </template>

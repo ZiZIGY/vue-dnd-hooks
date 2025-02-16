@@ -21,7 +21,7 @@ export const usePointer = (elementRef: Ref<HTMLElement | null>) => {
     store.pointerPosition.offset.percent.value = percent;
   };
 
-  const onPointerMove = (event: PointerEvent) => {
+  const onPointerMove = (event: PointerEvent | WheelEvent) => {
     store.pointerPosition.current.value = {
       x: event.clientX,
       y: event.clientY,

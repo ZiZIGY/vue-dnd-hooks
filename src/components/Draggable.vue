@@ -12,3 +12,10 @@
     drag me
   </div>
 </template>
+
+<style scoped>
+  div {
+    user-select: none;
+    touch-action: none;
+  }
+</style>

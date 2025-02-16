@@ -1,22 +1,15 @@
 <script setup lang="ts">
-  import DragContainer from './components/DragContainer.vue';
-  import BaseContainer from './components/BaseContainer.vue';
-
-  import { useDragContainerManager } from './managers/useDragContainerManager';
+  import DragContainer from './components/DragOverlay.vue';
 
   import Draggable from './components/Draggable.vue';
   import DropZone from './components/DropZone.vue';
   import { useDnDStore } from './composables/useDnDStore';
 
   const store = useDnDStore();
-
-  const { registerContainer } = useDragContainerManager();
-
-  registerContainer('base', BaseContainer);
 </script>
 
 <template>
-  <pre ref="preRef">{{ store }}</pre>
+  <pre>{{ store }}</pre>
   <DropZone>
     <Draggable />
   </DropZone>
