@@ -13,6 +13,7 @@ export const useDrag = (options?: IUseDragOptions) => {
     unregisterElement,
     isDragging,
     isSelected,
+    isOvered,
   } = useElementManager(options);
 
   const { disableInteractions, enableInteractions } = useInteractionManager();
@@ -63,6 +64,7 @@ export const useDrag = (options?: IUseDragOptions) => {
     elementRef,
     isDragging,
     isSelected,
+    isOvered,
     handleDragStart,
   };
 };

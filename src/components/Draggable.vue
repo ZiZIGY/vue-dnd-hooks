@@ -10,6 +10,7 @@
     @pointerdown="handleDragStart"
   >
     drag me
+    <slot />
   </div>
 </template>
 

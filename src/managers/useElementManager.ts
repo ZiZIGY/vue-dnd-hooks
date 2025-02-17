@@ -15,6 +15,10 @@ export const useElementManager = (options?: IUseDragOptions) => {
     )
   );
 
+  const isOvered = computed<boolean>(
+    () => store.hovered.element.value?.node === elementRef.value
+  );
+
   const isDragging = computed<boolean>(() =>
     store.draggingElements.value.some(
       (element) => element.node === elementRef.value
@@ -47,5 +51,6 @@ export const useElementManager = (options?: IUseDragOptions) => {
     unregisterElement,
     isSelected,
     isDragging,
+    isOvered,
   };
 };

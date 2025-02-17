@@ -56,9 +56,18 @@ export interface IPoint {
   y: number;
 }
 
+export interface IUseDropOptions {
+  groups?: string[];
+  events?: {
+    // onDrop?: (store: IDnDStore) => void;
+    // onHover?: (store: IDnDStore) => void;
+    // onLeave?: (store: IDnDStore) => void;
+  };
+}
+
 export interface IUseDragOptions {
   groups?: string[];
-  hooks?: {
+  events?: {
     // onEnd?: () => void;
     // onStart?: () => void;
     // onMove?: () => void;

@@ -45,6 +45,5 @@
     padding: 40px;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
-    transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1);
   }
 </style>

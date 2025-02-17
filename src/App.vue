@@ -9,12 +9,22 @@
 </script>
 
 <template>
-  <pre>{{ store }}</pre>
-  <DropZone>
-    <Draggable />
-  </DropZone>
+  <pre>{{ store.hovered }}</pre>
+  <Draggable>
+    <DropZone class="test"> nested zone </DropZone>
+  </Draggable>
 
-  <DropZone class="test"> drop in me </DropZone>
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <DropZone class="test">
+    <div>drop in me</div>
+    <DropZone class="test test2"> drop in me 2 </DropZone>
+  </DropZone>
 
   <DragContainer />
 </template>
@@ -36,7 +46,6 @@
 
   .test {
     padding: 20px;
-    margin-top: 100px;
     border: 1px dashed red;
   }
 </style>
