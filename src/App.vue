@@ -13,6 +13,7 @@
   <Draggable>
     <DropZone class="test"> nested zone </DropZone>
   </Draggable>
+  <Draggable></Draggable>
 
   <br />
   <br />

@@ -1,8 +1,8 @@
+import { draggableDataName, droppableDataName } from '../utils/namespaces';
 import { getBoundingBox, getCenter, getDistance } from '../utils/geometry';
 
 import type { IDraggingElement } from '../types';
 import type { Ref } from 'vue';
-import { droppableDataName } from '../utils/namespaces';
 import { useDnDStore } from './useDnDStore';
 import { usePointer } from './usePointer';
 
@@ -144,6 +144,123 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
     }, null as HTMLElement | null);
   };
 
+  const findNearestDraggableItem = (): HTMLElement | null => {
+    if (!activeContainer.ref.value || !pointerPosition.current.value)
+      return null;
+
+    const container = activeContainer.ref.value;
+    const containerBox = container.getBoundingClientRect();
+    const containerCenter = getCenter(containerBox);
+
+    // Проверяем, находится ли указатель мыши внутри элемента
+    const isPointerInsideElement =
+      pointerPosition.current.value.x >= containerBox.left &&
+      pointerPosition.current.value.x <= containerBox.right &&
+      pointerPosition.current.value.y >= containerBox.top &&
+      pointerPosition.current.value.y <= containerBox.bottom;
+
+    // Если указатель внутри элемента, проверяем только точку указателя
+    if (isPointerInsideElement) {
+      const elements = document.elementsFromPoint(
+        pointerPosition.current.value.x,
+        pointerPosition.current.value.y
+      );
+      for (const element of elements) {
+        if (
+          element instanceof HTMLElement &&
+          element.hasAttribute(draggableDataName) &&
+          !container.contains(element) &&
+          element !== container &&
+          !draggingElements.value.some(
+            (dragEl) =>
+              dragEl.node?.contains(element) || element === dragEl.node
+          )
+        ) {
+          return element;
+        }
+      }
+    }
+
+    // Если указатель не внутри или не нашли подходящий элемент, используем стандартную логику
+    const topPoints = [
+      { x: containerBox.x, y: containerBox.y },
+      { x: containerBox.x + containerBox.width * 0.5, y: containerBox.y },
+      { x: containerBox.x + containerBox.width, y: containerBox.y },
+    ];
+
+    const centerPoints = [
+      { x: containerBox.x, y: containerBox.y + containerBox.height * 0.5 },
+      { x: containerCenter.x, y: containerCenter.y },
+      {
+        x: containerBox.x + containerBox.width,
+        y: containerBox.y + containerBox.height * 0.5,
+      },
+    ];
+
+    const bottomPoints = [
+      { x: containerBox.x, y: containerBox.y + containerBox.height },
+      {
+        x: containerBox.x + containerBox.width * 0.5,
+        y: containerBox.y + containerBox.height,
+      },
+      {
+        x: containerBox.x + containerBox.width,
+        y: containerBox.y + containerBox.height,
+      },
+    ];
+
+    const findDraggableItemsForPoints = (
+      points: Array<{ x: number; y: number }>
+    ) => {
+      const items = new Set<HTMLElement>();
+      points.forEach((point) => {
+        const elements = document.elementsFromPoint(point.x, point.y);
+        elements.forEach((element) => {
+          if (
+            element instanceof HTMLElement &&
+            element.hasAttribute(draggableDataName) &&
+            !container.contains(element) &&
+            element !== container &&
+            !draggingElements.value.some(
+              (dragEl) =>
+                dragEl.node?.contains(element) || element === dragEl.node
+            )
+          ) {
+            items.add(element);
+          }
+        });
+      });
+      return items;
+    };
+
+    let draggableItems = findDraggableItemsForPoints(topPoints);
+
+    if (draggableItems.size === 0) {
+      draggableItems = findDraggableItemsForPoints(centerPoints);
+    }
+
+    if (draggableItems.size === 0) {
+      draggableItems = findDraggableItemsForPoints(bottomPoints);
+    }
+
+    if (draggableItems.size === 0) return null;
+
+    return Array.from(draggableItems).reduce((nearest, current) => {
+      if (!nearest) return current;
+
+      const nearestBox = getBoundingBox(nearest);
+      const currentBox = getBoundingBox(current);
+
+      const nearestCenter = getCenter(nearestBox);
+      const currentCenter = getCenter(currentBox);
+
+      const nearestDistance = getDistance(containerCenter, nearestCenter);
+      const currentDistance = getDistance(containerCenter, currentCenter);
+
+      return currentDistance < nearestDistance ? current : nearest;
+    }, null as HTMLElement | null);
+  };
+
   const findAndSetHoveredZone = (dropZone: HTMLElement | null) => {
     if (!dropZone) {
       hovered.zone.value = null;
@@ -188,10 +305,19 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
 
   const updateDropZone = () => {
     const nearestDropZone = findNearestDropZone();
+    const nearestDraggableItem = findNearestDraggableItem();
 
     // Обновляем зону только если она реально изменилась
     if (nearestDropZone !== hovered.zone.value?.node) {
       findAndSetHoveredZone(nearestDropZone);
+    }
+
+    // Обновляем элемент только если он реально изменился
+    if (nearestDraggableItem !== hovered.element.value?.node) {
+      const element = elements.value.find(
+        (el) => el.node === nearestDraggableItem
+      );
+      hovered.element.value = element || null;
     }
 
     animationFrameId = requestAnimationFrame(updateDropZone);
