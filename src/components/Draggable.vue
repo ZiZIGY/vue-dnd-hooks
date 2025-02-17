@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { useDrag } from '../composables/useDrag';
 
-  const { elementRef, handleDragStart } = useDrag();
+  const { elementRef, handleDragStart, isOvered } = useDrag();
 </script>
 
 <template>
@@ -9,7 +9,7 @@
     ref="elementRef"
     @pointerdown="handleDragStart"
   >
-    drag me
+    drag me {{ isOvered }}
     <slot />
   </div>
 </template>
