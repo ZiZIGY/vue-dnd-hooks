@@ -10,6 +10,7 @@
     @pointerdown="handleDragStart"
   >
     drag me {{ isOvered }}
+
     <slot />
   </div>
 </template>
@@ -18,5 +19,16 @@
   div {
     user-select: none;
     touch-action: none;
+    position: relative;
+    height: 60px;
+  }
+
+  .point {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
   }
 </style>

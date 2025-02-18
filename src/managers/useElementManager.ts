@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 
 import type { IUseDragOptions } from '../types';
 import { draggableDataName } from '../utils/namespaces';
+import { useBounding } from '../composables/useBounding';
 import { useDnDStore } from '../composables/useDnDStore';
 
 export const useElementManager = (options?: IUseDragOptions) => {

@@ -9,12 +9,8 @@
 </script>
 
 <template>
-  <pre>{{ store.hovered }}</pre>
-  <Draggable>
-    <DropZone class="test"> nested zone </DropZone>
-  </Draggable>
-  <Draggable></Draggable>
-
+  <pre>{{ store }}</pre>
+  <Draggable class="hehe"> </Draggable>
   <br />
   <br />
   <br />
@@ -38,7 +34,7 @@
     margin: auto;
     bottom: 0;
     width: min-content;
-    height: 50vh;
+    height: 20vh;
     overflow: auto;
   }
   body {

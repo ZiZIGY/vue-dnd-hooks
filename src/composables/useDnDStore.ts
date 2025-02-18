@@ -1,4 +1,5 @@
 import type {
+  IBoundingBox,
   IDnDStore,
   IDragElement,
   IDraggingElement,
@@ -21,6 +22,7 @@ export const useDnDStore = () => {
       activeContainer: {
         component: ref<Component | null>(null),
         ref: ref<HTMLElement | null>(null),
+        rect: ref<IBoundingBox | null>(null),
       },
       elements: ref<IDragElement[]>([]),
       draggingElements: ref<IDraggingElement[]>([]),

@@ -9,7 +9,7 @@ export const useDraggingManager = (id: string) => {
       x: event.clientX,
       y: event.clientY,
     };
-
+    z;
     store.offset = {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,

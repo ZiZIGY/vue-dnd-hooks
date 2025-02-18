@@ -23,6 +23,7 @@ export interface IAutoScrollOptions {
 export interface IActiveContainer {
   component: Ref<Component | null>;
   ref: Ref<HTMLElement | null>;
+  rect: Ref<IBoundingBox | null>;
 }
 
 export interface IPointerPosition {
@@ -83,4 +84,8 @@ export interface IBoundingBox {
   y: number;
   width: number;
   height: number;
+  bottom: number;
+  left: number;
+  right: number;
+  top: number;
 }
