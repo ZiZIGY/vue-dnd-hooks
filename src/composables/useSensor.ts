@@ -83,6 +83,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
 
   const detectCollisions = () => {
     const containerRect = getBoundingBox(activeContainer.ref.value);
+    const containerCenter = getCenter(containerRect);
     const pointerX = pointerPosition.current.value?.x ?? 0;
     const pointerY = pointerPosition.current.value?.y ?? 0;
 
@@ -115,6 +116,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
       })
       .map((element) => {
         const rect = getBoundingBox(element.node as HTMLElement);
+        const elementCenter = getCenter(rect);
 
         const isPointerInElement =
           pointerX >= rect.x &&
@@ -123,8 +125,8 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           pointerY <= rect.y + rect.height;
 
         const overlapPercent = getOverlapPercent(rect, containerRect);
+        const centerDistance = getDistance(containerCenter, elementCenter);
 
-        // Считаем глубину вложенности через количество элементов в store
         const depth = elements.value.filter(
           (parent) =>
             parent !== element &&
@@ -141,6 +143,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           isPointerInElement,
           overlapPercent,
           depth,
+          centerDistance,
         };
       })
       .sort((a, b) => {
@@ -151,6 +154,12 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           if (a.isPointerInElement !== b.isPointerInElement) {
             return a.isPointerInElement ? -1 : 1;
           }
+        }
+
+        // Если процент перекрытия примерно одинаковый
+        if (Math.abs(a.overlapPercent - b.overlapPercent) <= 1) {
+          // Используем расстояние между центрами
+          return a.centerDistance - b.centerDistance;
         }
 
         return b.overlapPercent - a.overlapPercent;
@@ -174,6 +183,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
       })
       .map((zone) => {
         const rect = getBoundingBox(zone.node as HTMLElement);
+        const zoneCenter = getCenter(rect);
 
         const isPointerInElement =
           pointerX >= rect.x &&
@@ -182,6 +192,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           pointerY <= rect.y + rect.height;
 
         const overlapPercent = getOverlapPercent(rect, containerRect);
+        const centerDistance = getDistance(containerCenter, zoneCenter);
 
         const depth = zones.value.filter(
           (parent) =>
@@ -196,6 +207,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           isPointerInElement,
           overlapPercent,
           depth,
+          centerDistance,
         };
       })
       .sort((a, b) => {
@@ -206,6 +218,10 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           if (a.isPointerInElement !== b.isPointerInElement) {
             return a.isPointerInElement ? -1 : 1;
           }
+        }
+
+        if (Math.abs(a.overlapPercent - b.overlapPercent) <= 1) {
+          return a.centerDistance - b.centerDistance;
         }
 
         return b.overlapPercent - a.overlapPercent;
