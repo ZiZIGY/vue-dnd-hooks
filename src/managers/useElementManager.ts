@@ -34,6 +34,7 @@ export const useElementManager = (options?: IUseDragOptions) => {
       groups: options?.groups ?? [],
       layer: options?.layer ?? null,
       defaultLayer: options?.layer ?? null,
+      events: options?.events ?? {},
     });
 
     elementRef.value.setAttribute(draggableDataName, 'true');

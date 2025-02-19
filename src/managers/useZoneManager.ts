@@ -18,6 +18,7 @@ export const useZoneManager = (options?: IUseDropOptions) => {
     zones.value.push({
       node: elementRef.value,
       groups: options?.groups ?? [],
+      events: options?.events ?? {},
     });
 
     elementRef.value.setAttribute('data-dnd-droppable', 'true');

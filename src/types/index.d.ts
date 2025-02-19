@@ -48,6 +48,10 @@ export interface IDragElement {
   groups: string[];
   layer: Component | null;
   defaultLayer: Component | null;
+  events: {
+    onHover?: (store: IDnDStore) => void;
+    onLeave?: (store: IDnDStore) => void;
+  };
 }
 
 export interface IDraggingElement extends IDragElement {
@@ -58,6 +62,10 @@ export interface IDraggingElement extends IDragElement {
 export interface IDropZone {
   node: HTMLElement | Element | null;
   groups: string[];
+  events: {
+    onHover?: (store: IDnDStore) => void;
+    onLeave?: (store: IDnDStore) => void;
+  };
 }
 
 export interface IPoint {
@@ -68,20 +76,20 @@ export interface IPoint {
 export interface IUseDropOptions {
   groups?: string[];
   events?: {
-    // onDrop?: (store: IDnDStore) => void;
-    // onHover?: (store: IDnDStore) => void;
-    // onLeave?: (store: IDnDStore) => void;
+    onDrop?: (store: IDnDStore) => void;
+    onHover?: (store: IDnDStore) => void;
+    onLeave?: (store: IDnDStore) => void;
   };
 }
 
 export interface IUseDragOptions {
   groups?: string[];
   events?: {
-    // onEnd?: () => void;
-    // onStart?: () => void;
-    // onMove?: () => void;
-    // onScroll?: () => void;
-    // onOver?: () => void;
+    onEnd?: (store: IDnDStore) => void;
+    onStart?: (store: IDnDStore) => void;
+    onMove?: (store: IDnDStore) => void;
+    onHover?: (store: IDnDStore) => void;
+    onLeave?: (store: IDnDStore) => void;
   };
   layer?: Component | null;
   container?: Component;

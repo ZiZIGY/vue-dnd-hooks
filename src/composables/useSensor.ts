@@ -227,8 +227,33 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
         return b.overlapPercent - a.overlapPercent;
       });
 
+    // Сохраняем предыдущие значения перед обновлением
+    const previousElement = hovered.element.value;
+    const previousZone = hovered.zone.value;
+
+    // Обновляем текущие значения
     hovered.element.value = collidingElements[0]?.element ?? null;
     hovered.zone.value = collidingZones[0]?.zone ?? null;
+
+    // Проверяем изменения для элементов
+    if (hovered.element.value !== previousElement) {
+      if (previousElement?.events?.onLeave) {
+        previousElement.events.onLeave(useDnDStore());
+      }
+      if (hovered.element.value?.events?.onHover) {
+        hovered.element.value.events.onHover(useDnDStore());
+      }
+    }
+
+    // Проверяем изменения для зон
+    if (hovered.zone.value !== previousZone) {
+      if (previousZone?.events?.onLeave) {
+        previousZone.events.onLeave(useDnDStore());
+      }
+      if (hovered.zone.value?.events?.onHover) {
+        hovered.zone.value.events.onHover(useDnDStore());
+      }
+    }
 
     animationFrameId = requestAnimationFrame(detectCollisions);
   };
