@@ -10,7 +10,6 @@ import {
   getCenter,
   getDistance,
 } from '../utils/geometry';
-import { draggableDataName, droppableDataName } from '../utils/namespaces';
 
 import type { Ref } from 'vue';
 import { isDescendant } from '../utils/dom';
@@ -75,9 +74,11 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
     const overlapArea = xOverlap * yOverlap;
     const boxAArea = boxA.width * boxA.height;
     const boxBArea = boxB.width * boxB.height;
-    const smallerArea = Math.min(boxAArea, boxBArea);
 
-    return (overlapArea / smallerArea) * 100;
+    // Возвращаем среднее значение процентов перекрытия относительно обоих элементов
+    return (
+      ((overlapArea / boxAArea) * 100 + (overlapArea / boxBArea) * 100) / 2
+    );
   };
 
   const detectCollisions = () => {
@@ -85,7 +86,6 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
     const pointerX = pointerPosition.current.value?.x ?? 0;
     const pointerY = pointerPosition.current.value?.y ?? 0;
 
-    // Проверяем, находится ли указатель внутри активного контейнера
     const isPointerInActiveContainer =
       containerRect &&
       pointerX >= containerRect.x &&
@@ -93,61 +93,9 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
       pointerY >= containerRect.y &&
       pointerY <= containerRect.y + containerRect.height;
 
-    // Если курсор не в активном контейнере, используем обычную логику
     const shouldUseNormalPriority = !isPointerInActiveContainer;
 
     const activeDragNodes = draggingElements.value.map((el) => el.node);
-
-    const collidingZones = zones.value
-      .filter((zone) => {
-        if (
-          !zone.node ||
-          activeDragNodes.some(
-            (dragNode) =>
-              dragNode &&
-              isDescendant(zone.node as HTMLElement, dragNode as HTMLElement)
-          )
-        ) {
-          return false;
-        }
-
-        const rect = getBoundingBox(zone.node as HTMLElement);
-        return rect && containerRect && checkCollision(rect, containerRect);
-      })
-      .map((zone) => {
-        const rect = getBoundingBox(zone.node as HTMLElement);
-
-        const isPointerInElement =
-          pointerX >= rect.x &&
-          pointerX <= rect.x + rect.width &&
-          pointerY >= rect.y &&
-          pointerY <= rect.y + rect.height;
-
-        const overlapPercent = getOverlapPercent(rect, containerRect);
-
-        return {
-          zone,
-          isPointerInElement,
-          isPointerInActiveContainer,
-          overlapPercent,
-          area: rect.width * rect.height,
-        };
-      })
-      .sort((a, b) => {
-        // Если курсор в активном контейнере, используем только isPointerInElement
-        if (!shouldUseNormalPriority) {
-          if (a.isPointerInElement !== b.isPointerInElement) {
-            return a.isPointerInElement ? -1 : 1;
-          }
-          return 0;
-        }
-
-        // Иначе используем обычную логику приоритетов
-        if (Math.abs(a.overlapPercent - b.overlapPercent) > 1) {
-          return b.overlapPercent - a.overlapPercent;
-        }
-        return a.area - b.area;
-      });
 
     const collidingElements = elements.value
       .filter((element) => {
@@ -176,25 +124,91 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
 
         const overlapPercent = getOverlapPercent(rect, containerRect);
 
+        // Считаем глубину вложенности через количество элементов в store
+        const depth = elements.value.filter(
+          (parent) =>
+            parent !== element &&
+            parent.node &&
+            element.node &&
+            isDescendant(
+              element.node as HTMLElement,
+              parent.node as HTMLElement
+            )
+        ).length;
+
         return {
           element,
           isPointerInElement,
           overlapPercent,
-          area: rect.width * rect.height,
+          depth,
         };
       })
       .sort((a, b) => {
         if (!shouldUseNormalPriority) {
+          if (a.isPointerInElement && b.isPointerInElement) {
+            return b.depth - a.depth;
+          }
           if (a.isPointerInElement !== b.isPointerInElement) {
             return a.isPointerInElement ? -1 : 1;
           }
-          return 0;
         }
 
-        if (Math.abs(a.overlapPercent - b.overlapPercent) > 1) {
-          return b.overlapPercent - a.overlapPercent;
+        return b.overlapPercent - a.overlapPercent;
+      });
+
+    const collidingZones = zones.value
+      .filter((zone) => {
+        if (
+          !zone.node ||
+          activeDragNodes.some(
+            (dragNode) =>
+              dragNode &&
+              isDescendant(zone.node as HTMLElement, dragNode as HTMLElement)
+          )
+        ) {
+          return false;
         }
-        return a.area - b.area;
+
+        const rect = getBoundingBox(zone.node as HTMLElement);
+        return rect && containerRect && checkCollision(rect, containerRect);
+      })
+      .map((zone) => {
+        const rect = getBoundingBox(zone.node as HTMLElement);
+
+        const isPointerInElement =
+          pointerX >= rect.x &&
+          pointerX <= rect.x + rect.width &&
+          pointerY >= rect.y &&
+          pointerY <= rect.y + rect.height;
+
+        const overlapPercent = getOverlapPercent(rect, containerRect);
+
+        const depth = zones.value.filter(
+          (parent) =>
+            parent !== zone &&
+            parent.node &&
+            zone.node &&
+            isDescendant(zone.node as HTMLElement, parent.node as HTMLElement)
+        ).length;
+
+        return {
+          zone,
+          isPointerInElement,
+          overlapPercent,
+          depth,
+        };
+      })
+      .sort((a, b) => {
+        if (!shouldUseNormalPriority) {
+          if (a.isPointerInElement && b.isPointerInElement) {
+            return b.depth - a.depth;
+          }
+          if (a.isPointerInElement !== b.isPointerInElement) {
+            return a.isPointerInElement ? -1 : 1;
+          }
+        }
+
+        return b.overlapPercent - a.overlapPercent;
       });
 
     hovered.element.value = collidingElements[0]?.element ?? null;
