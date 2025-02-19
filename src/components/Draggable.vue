@@ -20,7 +20,6 @@
     user-select: none;
     touch-action: none;
     position: relative;
-    height: 60px;
   }
 
   .point {

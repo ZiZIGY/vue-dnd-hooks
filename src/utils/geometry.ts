@@ -1,4 +1,4 @@
-import type { IBoundingBox, IPoint } from '../types';
+import type { IBoundingBox, IGrid, IPoint } from '../types';
 
 export const checkCollision = (
   boxA: IBoundingBox,
@@ -87,13 +87,7 @@ export const getAngle = (pointA: IPoint, pointB: IPoint): number => {
   return Math.atan2(dy, dx) * (180 / Math.PI);
 };
 
-export const createGrid = (
-  element: HTMLElement,
-  options?: {
-    cellSize?: number;
-    gap?: number;
-  }
-): IPoint[] => {
+export const createGrid = (element: HTMLElement, options?: IGrid): IPoint[] => {
   const { cellSize = 10, gap = 0 } = options ?? {};
 
   const rect = getBoundingBox(element);
