@@ -20,7 +20,6 @@
       resize: 'both',
     }"
   >
-    {{ store }}
   </pre>
 
   <br />
@@ -44,6 +43,7 @@
   <DropZone class="test">
     <div>drop in me</div>
   </DropZone>
+  <Draggable> </Draggable>
   <Draggable> </Draggable>
   <DropZone class="test">
     <div>drop in me</div>
