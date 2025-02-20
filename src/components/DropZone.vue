@@ -7,6 +7,7 @@
 <template>
   <div
     ref="elementRef"
+    class="drop-zone"
     :class="{ 'is-overed': isOvered, 'is-allowed': isAllowed }"
   >
     <slot />
@@ -14,6 +15,11 @@
 </template>
 
 <style>
+  .drop-zone {
+    padding: 5px;
+    border: 1px dashed red;
+  }
+
   .is-overed {
     background-color: gray;
   }
