@@ -5,7 +5,7 @@
     groups?: string[];
   }>();
 
-  const { elementRef, handleDragStart, isOvered } = useDrag({
+  const { elementRef, handleDragStart, isOvered, isAllowed } = useDrag({
     groups: props.groups,
   });
 </script>
@@ -15,7 +15,7 @@
     ref="elementRef"
     @pointerdown="handleDragStart"
   >
-    drag me {{ isOvered }}
+    drag me {{ isOvered }} {{ isAllowed }}
 
     <slot />
   </div>

@@ -11,7 +11,7 @@
     ref="elementRef"
     :class="{ 'is-overed': isOvered, 'is-allowed': isAllowed }"
   >
-    <slot /> {{ isAllowed }}
+    <slot /> {{ isAllowed }} {{ isOvered }}
   </div>
 </template>
 

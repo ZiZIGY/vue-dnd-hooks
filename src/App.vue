@@ -6,10 +6,7 @@
 </script>
 
 <template>
-  <Draggable
-    class="hehe"
-    :groups="['zone1']"
-  />
+  <Draggable :groups="['zone1']" />
   <Draggable :groups="['zone1']" />
 
   <DropZone>test zone</DropZone>

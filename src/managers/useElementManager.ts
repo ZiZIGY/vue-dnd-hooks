@@ -5,30 +5,49 @@ import { draggableDataName } from '../utils/namespaces';
 import { useDnDStore } from '../composables/useDnDStore';
 
 export const useElementManager = (options?: IUseDragOptions) => {
-  const store = useDnDStore();
+  const {
+    elements,
+    selectedElements,
+    draggingElements,
+    hovered,
+    isDragging: isDragStarted,
+  } = useDnDStore();
 
   const elementRef = ref<HTMLElement | null>(null);
 
   const isSelected = computed<boolean>(() =>
-    store.selectedElements.value.some(
-      (element) => element.node === elementRef.value
-    )
+    selectedElements.value.some((element) => element.node === elementRef.value)
   );
 
   const isOvered = computed<boolean>(
-    () => store.hovered.element.value?.node === elementRef.value
+    () => hovered.element.value?.node === elementRef.value
   );
 
   const isDragging = computed<boolean>(() =>
-    store.draggingElements.value.some(
-      (element) => element.node === elementRef.value
-    )
+    draggingElements.value.some((element) => element.node === elementRef.value)
   );
+
+  const isAllowed = computed<boolean>(() => {
+    if (!elementRef.value) return false;
+    if (!isDragStarted.value) return false;
+
+    const currentElement = elements.value.find(
+      (element) => element.node === elementRef.value
+    );
+    if (!currentElement?.groups.length) return true;
+
+    return !draggingElements.value.some((element) => {
+      if (!element.groups.length) return false;
+      return !element.groups.some((group) =>
+        currentElement.groups.includes(group)
+      );
+    });
+  });
 
   const registerElement = () => {
     if (!elementRef.value) throw new Error('ElementRef is not set');
 
-    store.elements.value.push({
+    elements.value.push({
       node: elementRef.value,
       groups: options?.groups ?? [],
       layer: options?.layer ?? null,
@@ -40,10 +59,10 @@ export const useElementManager = (options?: IUseDragOptions) => {
   };
 
   const unregisterElement = () => {
-    const index = store.elements.value.findIndex(
+    const index = elements.value.findIndex(
       (element) => element.node === elementRef.value
     );
-    if (index !== -1) store.elements.value.splice(index, 1);
+    if (index !== -1) elements.value.splice(index, 1);
   };
 
   return {
@@ -53,5 +72,6 @@ export const useElementManager = (options?: IUseDragOptions) => {
     isSelected,
     isDragging,
     isOvered,
+    isAllowed,
   };
 };
