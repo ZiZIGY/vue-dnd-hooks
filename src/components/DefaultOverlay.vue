@@ -42,7 +42,6 @@
     position: fixed;
     top: 0;
     left: 0;
-    padding: 40px;
     background-color: rgba(0, 0, 0, 0.5);
     transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     z-index: 1000;

@@ -12,7 +12,6 @@ export const useDrag = (options?: IUseDragOptions) => {
     registerElement,
     unregisterElement,
     isDragging,
-    isSelected,
     isOvered,
     isAllowed,
   } = useElementManager(options);
@@ -63,7 +62,6 @@ export const useDrag = (options?: IUseDragOptions) => {
     pointerPosition: store.pointerPosition,
     elementRef,
     isDragging,
-    isSelected,
     isOvered,
     isAllowed,
     handleDragStart,

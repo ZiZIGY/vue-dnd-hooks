@@ -1,22 +1,26 @@
 <script setup lang="ts">
   import { useDrag } from '../composables/useDrag';
+  import { useSelectionManager } from '../managers/useSelectionManager';
 
   const props = defineProps<{
     groups?: string[];
   }>();
 
-  const { elementRef, handleDragStart, isOvered, isAllowed } = useDrag({
+  const { elementRef, handleDragStart } = useDrag({
     groups: props.groups,
   });
+
+  const { handleToggleSelect, isSelected } = useSelectionManager(elementRef);
 </script>
 
 <template>
-  <div
-    ref="elementRef"
-    @pointerdown="handleDragStart"
-  >
-    drag me {{ isOvered }} {{ isAllowed }}
-
+  <div ref="elementRef">
+    <input
+      type="checkbox"
+      :checked="isSelected"
+      @change="handleToggleSelect"
+    />
+    <div @pointerdown="handleDragStart">+</div>
     <slot />
   </div>
 </template>
@@ -26,6 +30,7 @@
     user-select: none;
     touch-action: none;
     position: relative;
+    display: flex;
   }
 
   .point {

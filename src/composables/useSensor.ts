@@ -21,13 +21,21 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   const getDraggingElements = (
     draggableElement: HTMLElement | null
   ): IDraggingElement[] => {
-    if (store.selectedElements.value.length) {
+    // Проверяем, содержится ли draggableElement в selectedElements
+    const isDraggableInSelection = store.selectedElements.value.some(
+      (element) => element.node === draggableElement
+    );
+
+    if (store.selectedElements.value.length && isDraggableInSelection) {
       return store.selectedElements.value.map((element) => ({
         ...element,
         initialHTML: element.node?.outerHTML ?? '',
         initialRect: element.node?.getBoundingClientRect(),
       }));
     }
+
+    // Если элемент не в выделении, очищаем selectedElements
+    store.selectedElements.value = [];
 
     const element = store.elements.value.find(
       (element) => element.node === draggableElement

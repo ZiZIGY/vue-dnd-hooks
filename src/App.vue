@@ -8,6 +8,7 @@
 <template>
   <Draggable :groups="['zone1']" />
   <Draggable :groups="['zone1']" />
+  <Draggable :groups="['zone1']" />
 
   <DropZone>test zone</DropZone>
   <DropZone>test zone</DropZone>

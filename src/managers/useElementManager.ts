@@ -7,17 +7,12 @@ import { useDnDStore } from '../composables/useDnDStore';
 export const useElementManager = (options?: IUseDragOptions) => {
   const {
     elements,
-    selectedElements,
     draggingElements,
     hovered,
     isDragging: isDragStarted,
   } = useDnDStore();
 
   const elementRef = ref<HTMLElement | null>(null);
-
-  const isSelected = computed<boolean>(() =>
-    selectedElements.value.some((element) => element.node === elementRef.value)
-  );
 
   const isOvered = computed<boolean>(
     () => hovered.element.value?.node === elementRef.value
@@ -69,7 +64,6 @@ export const useElementManager = (options?: IUseDragOptions) => {
     elementRef,
     registerElement,
     unregisterElement,
-    isSelected,
     isDragging,
     isOvered,
     isAllowed,
