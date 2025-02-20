@@ -1,6 +1,6 @@
 {
   "name": "vue-dnd-hooks",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": false,
   "description": "Vue 3 Drag and Drop Hooks Library",
   "author": "ZIZIGY",
@@ -14,7 +14,7 @@
   ],
   "main": "./src/index.ts",
   "module": "./src/index.ts",
-  "types": "./src/types/index.d.ts",
+  "types": "./src/index.ts",
   "files": [
     "src",
     "README.md"
@@ -24,7 +24,7 @@
   },
   "exports": {
     ".": {
-      "types": "./src/types/index.ts",
+      "types": "./src/index.ts",
       "import": "./src/index.ts"
     }
   },
