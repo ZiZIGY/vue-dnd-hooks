@@ -2,17 +2,25 @@ import { computed, type Ref } from 'vue';
 import { useDnDStore } from '../composables/useDnDStore';
 import { isDescendant } from '../utils/dom';
 
+/**
+ * Hook for managing element selection in drag and drop interface
+ * @param elementRef - Reference to the HTML element that can be selected
+ * @returns Object containing selection state and handlers
+ */
 export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
   const { selectedElements, elements } = useDnDStore();
 
+  /** Current element from the DnD store */
   const element = computed(() =>
     elements.value.find((element) => element.node === elementRef.value)
   );
 
+  /** Whether the current element is selected */
   const isSelected = computed<boolean>(() =>
     selectedElements.value.some((element) => element.node === elementRef.value)
   );
 
+  /** Whether the current element contains any selected elements */
   const isParentOfSelected = computed(() => {
     if (!elementRef.value) return false;
     return selectedElements.value.some(
@@ -25,6 +33,7 @@ export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
     );
   });
 
+  /** Whether the current element has a selected ancestor */
   const hasSelectedParent = computed(() => {
     if (!elementRef.value) return false;
     return selectedElements.value.some(
@@ -37,6 +46,7 @@ export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
     );
   });
 
+  /** Removes the current element from selection */
   const handleUnselect = () => {
     if (!element.value) return;
 
@@ -45,10 +55,15 @@ export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
     );
   };
 
+  /**
+   * Adds the current element to selection.
+   * If element contains selected elements, they will be unselected.
+   * If element has selected parent, parent will be unselected.
+   */
   const handleSelect = () => {
     if (!element.value) return;
 
-    // Если элемент содержит выбранные элементы, удаляем их и выбираем родителя
+    // If element contains selected elements, remove them and select the parent
     if (isParentOfSelected.value) {
       selectedElements.value = selectedElements.value.filter(
         (selected) =>
@@ -60,7 +75,7 @@ export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
       );
     }
 
-    // Если у элемента есть выбранный родитель, удаляем родителя из выбранных
+    // If element has selected parent, remove parent from selection
     if (hasSelectedParent.value) {
       selectedElements.value = selectedElements.value.filter(
         (selected) =>
@@ -75,6 +90,7 @@ export const useSelectionManager = (elementRef: Ref<HTMLElement | null>) => {
     selectedElements.value.push(element.value);
   };
 
+  /** Toggles selection state of the current element */
   const handleToggleSelect = () => {
     if (!element.value) return;
 

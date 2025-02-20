@@ -3,26 +3,63 @@ import { ref, watch } from 'vue';
 
 import type { Ref } from 'vue';
 
+/**
+ * Hook for automatic scrolling when pointer approaches container edges.
+ * Universal utility that can be used for any pointer-based interactions,
+ * not limited to drag and drop operations.
+ *
+ * @param container - Reference to the scrollable container element
+ * @param point - Reference to the current pointer position
+ * @param options - Auto-scroll configuration options
+ * @returns Object containing scroll state
+ *
+ * @example
+ * ```ts
+ * // Basic usage
+ * const container = ref<HTMLElement | null>(null);
+ * const point = ref<IPoint | null>(null);
+ * const { isScrolling } = useAutoScroll(container, point);
+ *
+ * // With custom options
+ * const options = {
+ *   threshold: 100, // Start scrolling 100px from edges
+ *   speed: 15,     // Scroll 15px per frame
+ *   disabled: false // Enable/disable scrolling
+ * };
+ * const { isScrolling } = useAutoScroll(container, point, options);
+ * ```
+ */
 export const useAutoScroll = (
   container: Ref<HTMLElement | null>,
   point: Ref<IPoint | null>,
   options: IAutoScrollOptions = {}
 ) => {
   const { threshold = 50, speed = 10, disabled = false } = options;
+  /** Flag indicating if auto-scroll is currently active */
   const isScrolling = ref(false);
+  /** Request animation frame ID for scroll animation */
   let rafId: number | null = null;
 
-  // Добавляем отслеживание времени
+  /** Timestamp of last scroll update for smooth animation */
   let lastTime: number | null = null;
 
+  /** Target frames per second for smooth scrolling */
   const targetFPS = 144;
+  /** Time between frames in milliseconds */
   const frameTime = 1000 / targetFPS;
 
-  // Кэшируем вычисления
+  /** Cache for optimizing DOM reads */
   let lastRect: DOMRect | null = null;
   let lastScrollTop = 0;
   let lastScrollLeft = 0;
 
+  /**
+   * Performs one step of auto-scroll animation.
+   * Checks if pointer is near container edges and scrolls accordingly.
+   * Uses RAF for smooth animation and performance optimization.
+   *
+   * @param timestamp - Current animation timestamp from requestAnimationFrame
+   */
   const performScroll = (timestamp: number) => {
     if (!container.value || !point.value || disabled) {
       isScrolling.value = false;
@@ -87,6 +124,10 @@ export const useAutoScroll = (
     }
   };
 
+  /**
+   * Stops auto-scroll animation and resets all cached values.
+   * Called when pointer leaves container or component is disabled.
+   */
   const stopScroll = () => {
     if (rafId) {
       cancelAnimationFrame(rafId);
@@ -99,16 +140,18 @@ export const useAutoScroll = (
     isScrolling.value = false;
   };
 
+  // Start/stop scrolling when pointer position changes
   watch(point, (newPoint) => {
     if (newPoint) {
       if (rafId) cancelAnimationFrame(rafId);
-      lastTime = null; // Сбрасываем время при новом драге
+      lastTime = null;
       performScroll(performance.now());
     } else {
       stopScroll();
     }
   });
 
+  // Stop scrolling when disabled
   watch(
     () => disabled,
     (isDisabled) => {
