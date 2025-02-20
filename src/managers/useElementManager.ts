@@ -17,6 +17,7 @@ export const useElementManager = (options?: IUseDragOptions) => {
     elements,
     draggingElements,
     hovered,
+    selectedElements,
     isDragging: isDragStarted,
   } = useDnDStore();
 
@@ -73,6 +74,11 @@ export const useElementManager = (options?: IUseDragOptions) => {
       (element) => element.node === elementRef.value
     );
     if (index !== -1) elements.value.splice(index, 1);
+
+    const selectedIndex = selectedElements.value.findIndex(
+      (element) => element.node === elementRef.value
+    );
+    if (selectedIndex !== -1) selectedElements.value.splice(selectedIndex, 1);
   };
 
   return {

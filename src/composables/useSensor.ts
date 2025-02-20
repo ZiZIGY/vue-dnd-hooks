@@ -308,6 +308,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
     }
 
     store.draggingElements.value = [];
+    store.selectedElements.value = [];
 
     store.hovered.zone.value = null;
     store.hovered.element.value = null;
