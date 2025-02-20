@@ -1,9 +1,4 @@
-import type {
-  IBoundingBox,
-  IDragElement,
-  IDraggingElement,
-  IDropZone,
-} from '../types';
+import type { IBoundingBox, IDraggingElement } from '../types';
 import {
   checkCollision,
   getBoundingBox,
