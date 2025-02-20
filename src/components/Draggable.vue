@@ -2,13 +2,7 @@
   import { useDrag } from '../composables/useDrag';
   import { useSelectionManager } from '../managers/useSelectionManager';
 
-  const props = defineProps<{
-    groups?: string[];
-  }>();
-
-  const { elementRef, handleDragStart } = useDrag({
-    groups: props.groups,
-  });
+  const { elementRef, handleDragStart } = useDrag();
 
   const { handleToggleSelect, isSelected } = useSelectionManager(elementRef);
 </script>

@@ -1,17 +1,49 @@
 <script setup lang="ts">
+  import { ref } from 'vue';
   import DragContainer from './components/DragOverlay.vue';
 
   import Draggable from './components/Draggable.vue';
   import DropZone from './components/DropZone.vue';
+
+  const items = ref([
+    {
+      id: 1,
+      children: [
+        {
+          id: 2,
+          children: [
+            {
+              id: 3,
+              children: [],
+            },
+          ],
+        },
+        {
+          id: 4,
+          children: [],
+        },
+      ],
+    },
+  ]);
 </script>
 
 <template>
-  <Draggable :groups="['zone1']" />
-  <Draggable :groups="['zone1']" />
-  <Draggable :groups="['zone1']" />
-
-  <DropZone>test zone</DropZone>
-  <DropZone>test zone</DropZone>
+  <DropZone>
+    <Draggable
+      v-for="item in items"
+      :key="item.id"
+    >
+      <div>{{ item.id }}</div>
+      <DropZone>
+        <Draggable
+          v-for="child in item.children"
+          :key="child.id"
+        >
+          <div>{{ child.id }}</div>
+        </Draggable>
+      </DropZone>
+    </Draggable>
+  </DropZone>
 
   <DragContainer />
 </template>
@@ -31,10 +63,5 @@
   }
   body {
     height: 3000px;
-  }
-
-  .test {
-    padding: 20px;
-    border: 1px dashed red;
   }
 </style>

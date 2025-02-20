@@ -1,9 +1,7 @@
 <script setup lang="ts">
   import { useDrop } from '../composables/useDrop';
 
-  const { elementRef, isOvered, isAllowed } = useDrop({
-    groups: ['zone1'],
-  });
+  const { elementRef, isOvered, isAllowed } = useDrop();
 </script>
 
 <template>
@@ -11,16 +9,12 @@
     ref="elementRef"
     :class="{ 'is-overed': isOvered, 'is-allowed': isAllowed }"
   >
-    <slot /> {{ isAllowed }} {{ isOvered }}
+    <slot />
   </div>
 </template>
 
 <style>
   .is-overed {
     background-color: gray;
-  }
-
-  .is-allowed {
-    background-color: green;
   }
 </style>
