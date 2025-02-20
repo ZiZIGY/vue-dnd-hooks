@@ -1,11 +1,4 @@
-import {
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  shallowRef,
-  watch,
-  type Ref,
-} from 'vue';
+import { onBeforeUnmount, shallowRef, watch, type Ref } from 'vue';
 
 import type { IBoundingBox } from '../types';
 import { getBoundingBox } from '../utils/geometry';
