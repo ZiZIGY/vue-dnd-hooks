@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { useDrag } from './composables/useDrag';
-  import { DragOverlay } from './components/DragOverlay';
 
   const { elementRef, handleDragStart } = useDrag();
 </script>
@@ -12,8 +11,6 @@
   >
     123123
   </div>
-
-  <DragOverlay />
 </template>
 
 <style>
