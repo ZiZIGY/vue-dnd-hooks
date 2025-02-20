@@ -2,7 +2,9 @@
   import { useDrag } from '../composables/useDrag';
   import { useSelectionManager } from '../managers/useSelectionManager';
 
-  const { elementRef, handleDragStart } = useDrag();
+  const { elementRef, handleDragStart } = useDrag({
+    data: 'testy',
+  });
 
   const { handleToggleSelect, isSelected } = useSelectionManager(elementRef);
 </script>

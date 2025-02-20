@@ -4,6 +4,7 @@
 
   import Draggable from './components/Draggable.vue';
   import DropZone from './components/DropZone.vue';
+  import { useDnDStore } from './composables/useDnDStore';
 
   const items = ref([
     {

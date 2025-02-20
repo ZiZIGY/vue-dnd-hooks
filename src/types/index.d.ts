@@ -48,6 +48,7 @@ export interface IDragElement {
   groups: string[];
   layer: Component | null;
   defaultLayer: Component | null;
+  data: any;
   events: {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
@@ -63,6 +64,7 @@ export interface IDraggingElement extends IDragElement {
 export interface IDropZone {
   node: HTMLElement | Element | null;
   groups: string[];
+  data: any;
   events: {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
@@ -82,6 +84,7 @@ export interface IUseDropOptions {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
   };
+  data?: any;
 }
 
 export interface IUseDragOptions {
@@ -93,6 +96,7 @@ export interface IUseDragOptions {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
   };
+  data?: any;
   layer?: Component | null;
   container?: Component;
 }
