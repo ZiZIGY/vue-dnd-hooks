@@ -1,6 +1,6 @@
 {
   "name": "vue-dnd-hooks",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": false,
   "description": "Vue 3 Drag and Drop Hooks Library",
   "author": "ZIZIGY",
@@ -43,7 +43,5 @@
   "peerDependencies": {
     "vue": "^3.0.0"
   },
-  "dependencies": {
-    "vue-dnd-hooks": "^1.1.0"
-  }
+  "dependencies": {}
 }
