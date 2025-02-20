@@ -7,31 +7,10 @@ import { useDrop } from './composables/useDrop';
 import { useElementSize } from './composables/useElementSize';
 import { useGeometry } from './composables/useGeometry';
 import { useSelectionManager } from './managers/useSelectionManager';
-
-export {
-  DragOverlay,
-  useDrag,
-  useDrop,
-  useAutoScroll,
-  useDnDStore,
-  useGeometry,
-  useSelectionManager,
-  useElementSize,
-  useBounding,
+export const DnDKit = {
+    install(app) {
+        app.component('DragOverlay', DragOverlay);
+    },
 };
-
-export type {
-  IDnDStore,
-  IActiveContainer,
-  IAutoScrollOptions,
-  IBoundingBox,
-  IDragElement,
-  IDraggingElement,
-  IDropZone,
-  IGrid,
-  IPoint,
-  IPointerPosition,
-  IUseDragContainerOptions,
-  IUseDragOptions,
-  IUseDropOptions,
-} from './types';
+export { DragOverlay, useDrag, useDrop, useAutoScroll, useDnDStore, useGeometry, useSelectionManager, useElementSize, useBounding, };
+export default DnDKit;

@@ -11,6 +11,7 @@
   >
     123123
   </div>
+  <DragOverlay />
 </template>
 
 <style>
