@@ -296,12 +296,12 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   const deactivate = () => {
     onPointerEnd();
 
-    if (store.hovered.element.value) {
-      store.hovered.element.value.events.onEnd?.(store);
-    }
-
     if (store.hovered.zone.value) {
       store.hovered.zone.value.events.onDrop?.(store);
+    } else {
+      store.draggingElements.value.forEach((element) =>
+        element.events.onEnd?.(store)
+      );
     }
 
     store.draggingElements.value = [];
