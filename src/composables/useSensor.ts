@@ -17,15 +17,7 @@ import { useDnDStore } from './useDnDStore';
 import { usePointer } from './usePointer';
 
 export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
-  const {
-    draggingElements,
-    selectedElements,
-    elements,
-    activeContainer,
-    zones,
-    hovered,
-    pointerPosition,
-  } = useDnDStore();
+  const store = useDnDStore();
   const { onPointerStart, onPointerMove, onPointerEnd } =
     usePointer(elementRef);
 
@@ -34,15 +26,15 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   const getDraggingElements = (
     draggableElement: HTMLElement | null
   ): IDraggingElement[] => {
-    if (selectedElements.value.length) {
-      return selectedElements.value.map((element) => ({
+    if (store.selectedElements.value.length) {
+      return store.selectedElements.value.map((element) => ({
         ...element,
         initialHTML: element.node?.outerHTML ?? '',
         initialRect: element.node?.getBoundingClientRect(),
       }));
     }
 
-    const element = elements.value.find(
+    const element = store.elements.value.find(
       (element) => element.node === draggableElement
     );
     if (!element) return [];
@@ -82,10 +74,10 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   };
 
   const detectCollisions = () => {
-    const containerRect = getBoundingBox(activeContainer.ref.value);
+    const containerRect = getBoundingBox(store.activeContainer.ref.value);
     const containerCenter = getCenter(containerRect);
-    const pointerX = pointerPosition.current.value?.x ?? 0;
-    const pointerY = pointerPosition.current.value?.y ?? 0;
+    const pointerX = store.pointerPosition.current.value?.x ?? 0;
+    const pointerY = store.pointerPosition.current.value?.y ?? 0;
 
     const isPointerInActiveContainer =
       containerRect &&
@@ -96,9 +88,9 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
 
     const shouldUseNormalPriority = !isPointerInActiveContainer;
 
-    const activeDragNodes = draggingElements.value.map((el) => el.node);
+    const activeDragNodes = store.draggingElements.value.map((el) => el.node);
 
-    const collidingElements = elements.value
+    const collidingElements = store.elements.value
       .filter((element) => {
         if (
           !element.node ||
@@ -109,6 +101,18 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           )
         ) {
           return false;
+        }
+
+        if (element.groups.length) {
+          const isCompatible = !store.draggingElements.value.some(
+            (draggingElement) => {
+              if (!draggingElement.groups.length) return false;
+              return !draggingElement.groups.some((group) =>
+                element.groups.includes(group)
+              );
+            }
+          );
+          if (!isCompatible) return false;
         }
 
         const rect = getBoundingBox(element.node as HTMLElement);
@@ -127,7 +131,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
         const overlapPercent = getOverlapPercent(rect, containerRect);
         const centerDistance = getDistance(containerCenter, elementCenter);
 
-        const depth = elements.value.filter(
+        const depth = store.elements.value.filter(
           (parent) =>
             parent !== element &&
             parent.node &&
@@ -165,7 +169,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
         return b.overlapPercent - a.overlapPercent;
       });
 
-    const collidingZones = zones.value
+    const collidingZones = store.zones.value
       .filter((zone) => {
         if (
           !zone.node ||
@@ -178,7 +182,16 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
           return false;
         }
 
+        if (zone.groups.length) {
+          const isCompatible = !store.draggingElements.value.some((element) => {
+            if (!element.groups.length) return false;
+            return !element.groups.some((group) => zone.groups.includes(group));
+          });
+          if (!isCompatible) return false;
+        }
+
         const rect = getBoundingBox(zone.node as HTMLElement);
+
         return rect && containerRect && checkCollision(rect, containerRect);
       })
       .map((zone) => {
@@ -194,7 +207,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
         const overlapPercent = getOverlapPercent(rect, containerRect);
         const centerDistance = getDistance(containerCenter, zoneCenter);
 
-        const depth = zones.value.filter(
+        const depth = store.zones.value.filter(
           (parent) =>
             parent !== zone &&
             parent.node &&
@@ -228,30 +241,30 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
       });
 
     // Сохраняем предыдущие значения перед обновлением
-    const previousElement = hovered.element.value;
-    const previousZone = hovered.zone.value;
+    const previousElement = store.hovered.element.value;
+    const previousZone = store.hovered.zone.value;
 
     // Обновляем текущие значения
-    hovered.element.value = collidingElements[0]?.element ?? null;
-    hovered.zone.value = collidingZones[0]?.zone ?? null;
+    store.hovered.element.value = collidingElements[0]?.element ?? null;
+    store.hovered.zone.value = collidingZones[0]?.zone ?? null;
 
     // Проверяем изменения для элементов
-    if (hovered.element.value !== previousElement) {
+    if (store.hovered.element.value !== previousElement) {
       if (previousElement?.events?.onLeave) {
-        previousElement.events.onLeave(useDnDStore());
+        previousElement.events.onLeave(store);
       }
-      if (hovered.element.value?.events?.onHover) {
-        hovered.element.value.events.onHover(useDnDStore());
+      if (store.hovered.element.value?.events?.onHover) {
+        store.hovered.element.value.events.onHover(store);
       }
     }
 
     // Проверяем изменения для зон
-    if (hovered.zone.value !== previousZone) {
+    if (store.hovered.zone.value !== previousZone) {
       if (previousZone?.events?.onLeave) {
-        previousZone.events.onLeave(useDnDStore());
+        previousZone.events.onLeave(store);
       }
-      if (hovered.zone.value?.events?.onHover) {
-        hovered.zone.value.events.onHover(useDnDStore());
+      if (store.hovered.zone.value?.events?.onHover) {
+        store.hovered.zone.value.events.onHover(store);
       }
     }
 
@@ -270,7 +283,7 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   };
 
   const activate = (event: PointerEvent) => {
-    draggingElements.value = getDraggingElements(elementRef.value);
+    store.draggingElements.value = getDraggingElements(elementRef.value);
     onPointerStart(event);
 
     startDetection();
@@ -283,8 +296,18 @@ export const useSensor = (elementRef: Ref<HTMLElement | null>) => {
   const deactivate = () => {
     onPointerEnd();
 
-    draggingElements.value = [];
-    hovered.zone.value = null;
+    if (store.hovered.element.value) {
+      store.hovered.element.value.events.onEnd?.(store);
+    }
+
+    if (store.hovered.zone.value) {
+      store.hovered.zone.value.events.onDrop?.(store);
+    }
+
+    store.draggingElements.value = [];
+
+    store.hovered.zone.value = null;
+    store.hovered.element.value = null;
 
     stopDetection();
   };

@@ -4,11 +4,11 @@ import type { IUseDropOptions } from '../types';
 import { useZoneManager } from '../managers/useZoneManager';
 
 export const useDrop = (options?: IUseDropOptions) => {
-  const { elementRef, registerZone, unregisterZone, isOvered } =
+  const { elementRef, registerZone, unregisterZone, isOvered, isAllowed } =
     useZoneManager(options);
 
   onMounted(registerZone);
   onBeforeUnmount(unregisterZone);
 
-  return { elementRef, isOvered };
+  return { elementRef, isOvered, isAllowed };
 };

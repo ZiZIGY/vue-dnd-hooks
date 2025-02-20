@@ -1,14 +1,13 @@
 <script setup lang="ts">
-  import { useDnDStore } from '../composables/useDnDStore';
   import { useDrag } from '../composables/useDrag';
 
-  import Skeleton from './Skeleton.vue';
+  const props = defineProps<{
+    groups?: string[];
+  }>();
 
-  const { elementRef, handleDragStart, isOvered, pointerPosition } = useDrag({
-    layer: Skeleton,
+  const { elementRef, handleDragStart, isOvered } = useDrag({
+    groups: props.groups,
   });
-
-  const store = useDnDStore();
 </script>
 
 <template>
@@ -16,11 +15,8 @@
     ref="elementRef"
     @pointerdown="handleDragStart"
   >
-    drag me
+    drag me {{ isOvered }}
 
-    <pre>
-      {{ store }}
-    </pre>
     <slot />
   </div>
 </template>

@@ -4,12 +4,29 @@ import type { IUseDropOptions } from '../types';
 import { useDnDStore } from '../composables/useDnDStore';
 
 export const useZoneManager = (options?: IUseDropOptions) => {
-  const { zones, hovered } = useDnDStore();
+  const { zones, hovered, draggingElements, isDragging } = useDnDStore();
 
   const elementRef = ref<HTMLElement | null>(null);
 
   const isOvered = computed<boolean>(() => {
     return hovered.zone.value?.node === elementRef.value;
+  });
+
+  const isAllowed = computed<boolean>(() => {
+    if (!elementRef.value) return false;
+    if (!isDragging.value) return false;
+
+    const currentZone = zones.value.find(
+      (zone) => zone.node === elementRef.value
+    );
+    if (!currentZone?.groups.length) return true;
+
+    return !draggingElements.value.some((element) => {
+      if (!element.groups.length) return false;
+      return !element.groups.some((group) =>
+        currentZone.groups.includes(group)
+      );
+    });
   });
 
   const registerZone = () => {
@@ -34,5 +51,5 @@ export const useZoneManager = (options?: IUseDropOptions) => {
     if (index !== -1) zones.value.splice(index, 1);
   };
 
-  return { elementRef, registerZone, unregisterZone, isOvered };
+  return { elementRef, registerZone, unregisterZone, isOvered, isAllowed };
 };

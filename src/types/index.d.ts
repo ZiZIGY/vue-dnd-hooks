@@ -51,6 +51,7 @@ export interface IDragElement {
   events: {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
+    onEnd?: (store: IDnDStore) => void;
   };
 }
 
@@ -65,6 +66,7 @@ export interface IDropZone {
   events: {
     onHover?: (store: IDnDStore) => void;
     onLeave?: (store: IDnDStore) => void;
+    onDrop?: (store: IDnDStore) => void;
   };
 }
 

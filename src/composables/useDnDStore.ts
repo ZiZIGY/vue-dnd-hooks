@@ -1,5 +1,4 @@
 import type {
-  IBoundingBox,
   IDnDStore,
   IDragElement,
   IDraggingElement,
