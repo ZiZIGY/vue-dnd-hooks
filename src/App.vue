@@ -1,52 +1,19 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import DragContainer from './components/DragOverlay.vue';
+  import { useDrag } from './composables/useDrag';
+  import { DragOverlay } from './components/DragOverlay';
 
-  import Draggable from './components/Draggable.vue';
-  import DropZone from './components/DropZone.vue';
-  import { useDnDStore } from './composables/useDnDStore';
-
-  const items = ref([
-    {
-      id: 1,
-      children: [
-        {
-          id: 2,
-          children: [
-            {
-              id: 3,
-              children: [],
-            },
-          ],
-        },
-        {
-          id: 4,
-          children: [],
-        },
-      ],
-    },
-  ]);
+  const { elementRef, handleDragStart } = useDrag();
 </script>
 
 <template>
-  <DropZone>
-    <Draggable
-      v-for="item in items"
-      :key="item.id"
-    >
-      <div>{{ item.id }}</div>
-      <DropZone>
-        <Draggable
-          v-for="child in item.children"
-          :key="child.id"
-        >
-          <div>{{ child.id }}</div>
-        </Draggable>
-      </DropZone>
-    </Draggable>
-  </DropZone>
+  <div
+    ref="elementRef"
+    @pointerdown="handleDragStart"
+  >
+    123123
+  </div>
 
-  <DragContainer />
+  <DragOverlay />
 </template>
 
 <style>

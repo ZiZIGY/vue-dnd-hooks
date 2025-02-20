@@ -43,5 +43,7 @@
   "peerDependencies": {
     "vue": "^3.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "vue-dnd-hooks": "^1.1.0"
+  }
 }
