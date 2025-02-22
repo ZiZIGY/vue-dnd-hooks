@@ -8,7 +8,14 @@ export default defineConfig({
     vue(),
     dts({
       include: ['src/**/*.ts', 'src/**/*.vue'],
-      exclude: ['src/App.vue', 'src/main.ts', 'src/vite-env.d.ts'],
+      exclude: [
+        'src/App.vue',
+        'src/main.ts',
+        'src/vite-env.d.ts',
+        'src/router/index.ts',
+        'src/views/**',
+        'src/components/examples/**',
+      ],
       beforeWriteFile: (filePath, content) => {
         const fixedContent = content.replace(
           /from ['"]\.\.\/types['"];/g,

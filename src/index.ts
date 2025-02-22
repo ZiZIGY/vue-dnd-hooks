@@ -1,4 +1,4 @@
-import DragOverlay from './components/DragOverlay.vue';
+import DragOverlay from './components/lib/DragOverlay.vue';
 import { useAutoScroll } from './composables/useAutoScroll';
 import { useBounding } from './composables/useBounding';
 import { useDnDStore } from './composables/useDnDStore';
