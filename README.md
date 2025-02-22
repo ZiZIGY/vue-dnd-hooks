@@ -227,6 +227,7 @@ pnpm install vue-dnd-hooks
 <p align="center">
   <s>We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.</s>
 </p>
+
 ## 🎯 Roadmap
 
 - [ ] File upload with drag & drop
