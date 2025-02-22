@@ -223,7 +223,9 @@ pnpm install vue-dnd-hooks
 ```
 
 ## 📝 Contributing
+
 (Not Ready)
+
 <p align="center">
   <s>We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.</s>
 </p>
@@ -231,18 +233,20 @@ pnpm install vue-dnd-hooks
 ## 🎯 Roadmap
 
 - [ ] File upload with drag & drop
-- [ ] React port (probably not React have dnd-kit)
+- [ ] React port (probably not, react have dnd-kit)
 - [ ] Accessibility improvements (ARIA)
 
 ## 🌟 Showcase
 
 Projects using Vue Drag & Drop Library:
+
 - [Project Name](link) - Brief description
 - [Your Project Here](link) - Submit your project!
 
 ## 💖 Support
 
 If you find this library helpful, please consider:
+
 - Giving it a star on GitHub ⭐
 - Sharing it with others
 
@@ -251,4 +255,5 @@ If you find this library helpful, please consider:
 [MIT](LICENSE) © [ZiZiGY](https://github.com/ZiZiGY)
 
 ---
+
 <p align="center">Made with ❤️ for the Vue.js community</p>
