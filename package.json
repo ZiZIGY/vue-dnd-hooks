@@ -24,25 +24,26 @@
     "hooks",
     "typescript"
   ],
-  "main": "./dist/vue-dnd-hooks.umd.js",
-  "module": "./dist/vue-dnd-hooks.es.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/vue-dnd-hooks.umd.js",
+  "module": "./lib/vue-dnd-hooks.es.js",
+  "types": "./lib/index.d.ts",
   "files": [
-    "dist",
+    "lib",
     "README.md"
   ],
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
-    "prepare": "npm run build"
+    "build:lib": "vite build --config vite.config.lib.ts",
+    "build:docs": "vite build --config vite.config.docs.ts",
+    "prepare": "npm run build:lib"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/vue-dnd-hooks.es.js",
-      "require": "./dist/vue-dnd-hooks.umd.js"
+      "types": "./lib/index.d.ts",
+      "import": "./lib/vue-dnd-hooks.es.js",
+      "require": "./lib/vue-dnd-hooks.umd.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./lib/style.css"
   },
   "publishConfig": {
     "access": "public"
