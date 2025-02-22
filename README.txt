@@ -1,7 +1,7 @@
 # Vue Drag & Drop Library
 
 <p align="center">
-  <img src="./src/assets/logo.svg" width="200" alt="Vue Logo">
+  <img src="./src/assets/logo.svg" width="400" alt="Vue Logo">
 </p>
 
 A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
@@ -221,3 +221,33 @@ pnpm install vue-dnd-hooks
   }
 </style>
 ```
+
+## 📝 Contributing
+(Not Ready)
+<p align="center">
+  <s>We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.</s>
+</p>
+## 🎯 Roadmap
+
+- [ ] File upload with drag & drop
+- [ ] React port (probably not React have dnd-kit)
+- [ ] Accessibility improvements (ARIA)
+
+## 🌟 Showcase
+
+Projects using Vue Drag & Drop Library:
+- [Project Name](link) - Brief description
+- [Your Project Here](link) - Submit your project!
+
+## 💖 Support
+
+If you find this library helpful, please consider:
+- Giving it a star on GitHub ⭐
+- Sharing it with others
+
+## 📄 License
+
+[MIT](LICENSE) © [ZiZiGY](https://github.com/ZiZiGY)
+
+---
+<p align="center">Made with ❤️ for the Vue.js community</p>
