@@ -1,5 +1,7 @@
 # Vue Drag & Drop Library
 
+![Vue Logo](./src/assets/logo.svg)
+
 A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
 
 ## Features
@@ -11,18 +13,19 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Intuitive hooks-based approach
   - Clean and declarative syntax
   - Minimal boilerplate code
+
 - 🎨 **Full Customization**
 
   - Custom drag overlays
   - Flexible styling system
   - Animation support
   - Custom drag handles
+
 - 📱 **Advanced Input Support**
 
   - Touch devices support
   - Mouse events
   - Multi-touch gestures
-  - Keyboard navigation
 
 ### Performance
 
@@ -32,6 +35,7 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Minimal re-renders
   - Efficient DOM updates
   - Memory leak prevention
+
 - 🔄 **Smart Auto-scrolling**
 
   - Smooth scroll animations
@@ -47,6 +51,7 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Type inference
   - IDE autocompletion
   - Type-safe events
+
 - 📐 **Layout Features**
 
   - Grid system support
@@ -62,12 +67,14 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Zone filtering
   - Nested groups
   - Dynamic group validation
+
 - 📊 **Rich Events System**
 
   - Comprehensive lifecycle events
   - Custom event handlers
   - Drag state tracking
   - Position coordinates
+
 - 🛡️ **Built-in Utilities**
 
   - Geometry calculations
@@ -102,7 +109,9 @@ pnpm install vue-dnd-hooks
 ## Basic Usage
 
 ### App.vue
+
 <sup>📄 Root Application Component</sup>
+
 ```vue
 <script setup lang="ts">
   import { ref } from 'vue';
@@ -132,11 +141,12 @@ pnpm install vue-dnd-hooks
     <DragOverlay />
   </div>
 </template>
-
 ```
 
 ### Draggable.vue
+
 <sup>🧩 components/Draggable.vue</sup>
+
 ```vue
 <script setup lang="ts">
   import { useDrag } from 'vue-dnd-hooks';
@@ -165,13 +175,13 @@ pnpm install vue-dnd-hooks
     opacity: 0.5;
   }
 </style>
-
 ```
 
 ### Droppable.vue
-<sup>🧩 components/Droppable.vue</sup>
-```vue
 
+<sup>🧩 components/Droppable.vue</sup>
+
+```vue
 <script setup lang="ts">
   import { useDrop } from 'vue-dnd-hooks';
 
@@ -208,7 +218,4 @@ pnpm install vue-dnd-hooks
     border: 1px dashed red;
   }
 </style>
-
-
 ```
-
