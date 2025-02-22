@@ -1,6 +1,8 @@
 # Vue Drag & Drop Library
 
-![Vue Logo](./src/assets/logo.svg)
+<p align="center">
+  <img src="./src/assets/logo.svg" width="200" alt="Vue Logo">
+</p>
 
 A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
 
