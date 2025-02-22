@@ -1,33 +1,28 @@
 <script setup lang="ts">
-  import { useDrag } from './composables/useDrag';
+  import { ref } from 'vue';
+  import DragOverlay from './components/DragOverlay.vue';
+  import Draggable from './components/examples/Draggable.vue';
+  import Droppable from './components/examples/Droppable.vue';
 
-  const { elementRef, handleDragStart } = useDrag();
+  const handleDrop = () => (elementInDropZone.value = true);
+
+  const handleEnd = () => (elementInDropZone.value = false);
+
+  const elementInDropZone = ref<boolean>(false);
 </script>
 
 <template>
-  <div
-    ref="elementRef"
-    @pointerdown="handleDragStart"
-  >
-    123123
+  <div>
+    <Draggable v-if="!elementInDropZone"> drag me </Draggable>
+    <Droppable @drop="handleDrop">
+      <Draggable
+        v-if="elementInDropZone"
+        @end="handleEnd"
+      >
+        im in drop zone
+      </Draggable>
+    </Droppable>
+
+    <DragOverlay />
   </div>
-  <DragOverlay />
 </template>
-
-<style>
-  pre {
-    position: fixed;
-    left: 0;
-    top: 0;
-    margin: auto;
-    bottom: 0;
-    margin: auto;
-    height: 300px;
-    width: min-content;
-
-    overflow: auto;
-  }
-  body {
-    height: 3000px;
-  }
-</style>

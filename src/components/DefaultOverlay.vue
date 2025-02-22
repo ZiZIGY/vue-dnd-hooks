@@ -22,21 +22,19 @@
 </script>
 
 <template>
-  <Teleport to="body">
+  <div
+    v-if="isDragging"
+    ref="elementRef"
+    :style="computedStyle"
+  >
     <div
-      v-if="isDragging"
-      ref="elementRef"
-      :style="computedStyle"
-    >
-      <div
-        v-for="(element, index) in draggingElements"
-        :key="index"
-        v-html="element.initialHTML"
-        :style="{
-          width: `${element.initialRect?.width}px`,
-          height: `${element.initialRect?.height}px`,
-        }"
-      />
-    </div>
-  </Teleport>
+      v-for="(element, index) in draggingElements"
+      :key="index"
+      v-html="element.initialHTML"
+      :style="{
+        width: `${element.initialRect?.width}px`,
+        height: `${element.initialRect?.height}px`,
+      }"
+    />
+  </div>
 </template>
