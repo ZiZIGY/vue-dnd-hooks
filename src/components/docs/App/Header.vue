@@ -1,10 +1,10 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted } from 'vue';
 
-  const isScrolled = ref(false);
+  const isScrolled = ref<boolean>(false);
 
   const handleScroll = () => {
-    isScrolled.value = window.scrollY > 20;
+    isScrolled.value = window.scrollY > 0;
   };
 
   onMounted(() => {
@@ -24,17 +24,12 @@
       name: 'Guide',
       path: '/guide',
     },
-    {
-      name: 'Examples',
-      path: '/examples',
-    },
   ];
 </script>
 
 <template>
-  <!-- Навигация -->
   <header
-    class="fixed w-full z-50 transition-all duration-300"
+    class="w-full z-50 transition-all duration-300 fixed"
     :class="[
       isScrolled
         ? 'bg-gray-900/80 backdrop-blur-md shadow-lg shadow-gray-900/20'

@@ -33,7 +33,7 @@
       <h2 class="text-4xl font-bold text-white text-center mb-12"
         >Get Started</h2
       >
-      <div class="max-w-3xl mx-auto mb-16">
+      <div class="max-w-3xl mx-auto mb-16 shadow-xl">
         <h3 class="text-2xl font-semibold text-white mb-6">Installation</h3>
 
         <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden">
@@ -53,7 +53,7 @@
             </button>
           </div>
 
-          <div class="p-4 relative group">
+          <div class="p-4 relative group shadow-2xl">
             <code class="text-gray-300 language-bash">
               {{ installCommands[activeTab] }}
             </code>
@@ -108,28 +108,6 @@
             overlay during drag operations.
           </p>
         </div>
-      </div>
-
-      <div class="flex justify-center">
-        <a
-          href="/guide"
-          class="inline-flex items-center px-6 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-full transition-colors"
-        >
-          Read the Guide
-          <svg
-            class="w-4 h-4 ml-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </a>
       </div>
     </div>
   </section>

@@ -1,16 +1,21 @@
 <script setup lang="ts">
   import HomeCards from './HomeCards.vue';
   import gsap from 'gsap';
-  import { TextPlugin } from 'gsap/TextPlugin';
   import { onMounted, ref } from 'vue';
-
-  gsap.registerPlugin(TextPlugin);
 
   const logoRef = ref<HTMLElement | null>(null);
   const logoText = ref('Vue Drag & Drop');
 
   const underLogoRef = ref<HTMLElement | null>(null);
   const underLogoText = ref('⚒️ Collection of Vue Drag & Drop Utilities');
+
+  const scrollToGetStarted = () => {
+    gsap.to(window, {
+      duration: 1,
+      scrollTo: '#get-started',
+      ease: 'power2.inOut',
+    });
+  };
 
   onMounted(() => {
     gsap.to(logoRef.value, {
@@ -65,17 +70,17 @@
           </h1>
           <p class="text-lg lg:text-xl text-gray-400 mb-8">
             A powerful and flexible drag & drop library for Vue.js applications
-            with TypeScript support
+            with TypeScript support 💪
           </p>
 
           <!-- Кнопки действий -->
           <div class="flex justify-center lg:justify-start gap-4">
-            <a
-              href="#get-started"
+            <button
+              @click="scrollToGetStarted"
               class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-full transition-colors"
             >
               Get Started
-            </a>
+            </button>
             <a
               href="https://github.com/ZiZiGY/vue-dnd-hooks"
               target="_blank"
