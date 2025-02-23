@@ -14,7 +14,7 @@ export default defineConfig({
         'src/vite-env.d.ts',
         'src/router/index.ts',
         'src/views/**',
-        'src/components/examples/**',
+        'src/components/docs/**',
       ],
       beforeWriteFile: (filePath, content) => {
         const fixedContent = content.replace(
