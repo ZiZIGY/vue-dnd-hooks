@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   build: {
-    outDir: 'docs/dist',
+    outDir: 'docs',
   },
   css: {
     modules: {
