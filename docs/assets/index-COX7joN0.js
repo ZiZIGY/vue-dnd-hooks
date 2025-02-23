@@ -108,4 +108,4 @@ const { isOvered, elementRef } = useDrop({
   }
 })
             </code>
-          </pre></div></div></div>`,1)])))}}),bg=Rt({__name:"Home",setup(t){return(e,n)=>(gt(),_t(et,null,[Ce(mg),Ce(Hh),Ce(vg)],64))}}),xg=xh({history:Zd("/vue-dnd-hooks/"),routes:[{path:"/",name:"home",component:bg}]});cd(vd).use(xg).mount("#app");
+          </pre></div></div></div>`,1)])))}}),bg=Rt({__name:"Home",setup(t){return(e,n)=>(gt(),_t(et,null,[Ce(mg),Ce(Hh),Ce(vg)],64))}}),xg=xh({history:Zd("/vue-dnd-hooks"),routes:[{path:"/",name:"home",component:bg}]});cd(vd).use(xg).mount("#app");
