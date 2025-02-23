@@ -10,7 +10,7 @@
   const logoText = ref('Vue Drag & Drop');
 
   const underLogoRef = ref<HTMLElement | null>(null);
-  const underLogoText = ref('Collection of Vue Drag & Drop Utilities');
+  const underLogoText = ref('⚒️ Collection of Vue Drag & Drop Utilities');
 
   onMounted(() => {
     gsap.to(logoRef.value, {
