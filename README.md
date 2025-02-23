@@ -1,7 +1,7 @@
 # Vue Drag & Drop Library
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ZiZiGY/vue-dnd-hooks/master/logo.svg" width="400" alt="Vue Drag & Drop Logo">
+  <img src="https://raw.githubusercontent.com/ZiZiGY/vue-dnd-hooks/master/public/logo.svg" width="400" alt="Vue Drag & Drop Logo">
 </p>
 
 A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
@@ -15,12 +15,14 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Intuitive hooks-based approach
   - Clean and declarative syntax
   - Minimal boilerplate code
+
 - 🎨 **Full Customization**
 
   - Custom drag overlays
   - Flexible styling system
   - Animation support
   - Custom drag handles
+
 - 📱 **Advanced Input Support**
 
   - Touch devices support
@@ -35,6 +37,7 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Minimal re-renders
   - Efficient DOM updates
   - Memory leak prevention
+
 - 🔄 **Smart Auto-scrolling**
 
   - Smooth scroll animations
@@ -50,6 +53,7 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Type inference
   - IDE autocompletion
   - Type-safe events
+
 - 📐 **Layout Features**
 
   - Grid system support
@@ -65,12 +69,14 @@ A powerful and flexible drag & drop library for Vue.js applications with TypeScr
   - Zone filtering
   - Nested groups
   - Dynamic group validation
+
 - 📊 **Rich Events System**
 
   - Comprehensive lifecycle events
   - Custom event handlers
   - Drag state tracking
   - Position coordinates
+
 - 🛡️ **Built-in Utilities**
 
   - Geometry calculations
@@ -226,9 +232,9 @@ pnpm install vue-dnd-hooks
 
 ## 🎯 Roadmap
 
-- [ ]  File upload with drag & drop
-- [ ]  React port (probably not, react have dnd-kit)
-- [ ]  Accessibility improvements (ARIA)
+- [ ] File upload with drag & drop
+- [ ] React port (probably not, react have dnd-kit)
+- [ ] Accessibility improvements (ARIA)
 
 ## 🌟 Showcase
 
