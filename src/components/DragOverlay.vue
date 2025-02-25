@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useDnDStore } from '../composables/useDnDStore';
-  import DefaultOverlay from '../components/DefaultOverlay.vue';
+  import DefaultOverlay from './DefaultOverlay.vue';
 
   const { activeContainer } = useDnDStore();
 
