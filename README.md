@@ -1,10 +1,20 @@
 # Vue Drag & Drop Library
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ZiZiGY/vue-dnd-hooks/master/public/logo.svg" width="400" alt="Vue Drag & Drop Logo">
+  <a href="https://zizigy.github.io/vue-dnd-hooks/">
+    <img src="https://raw.githubusercontent.com/ZiZiGY/vue-dnd-hooks/master/public/logo.svg" width="400" alt="Vue Drag & Drop Logo">
+  </a>
 </p>
 
-A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
+<p align="center">
+  A powerful and flexible drag & drop library for Vue.js applications with TypeScript support.
+</p>
+
+<p align="center">
+  <a href="https://zizigy.github.io/vue-dnd-hooks/" target="_blank">
+    <img src="https://img.shields.io/badge/Documentation-Visit-blue?style=flat-square" alt="Documentation">
+  </a>
+</p>
 
 ## Features
 
