@@ -1,4 +1,0 @@
-{
-  "appCode": "\n<!-- App.vue -->\n<script setup lang=\"ts\">\n  import { DragOverlay } from 'vue-dnd-hooks'\n</script>\n\n<template>\n  <div>\n    <DragOverlay />\n  </div>\n</template>",
-  "overlayCode": "\n<!-- DragOverlay.vue -->\n<script setup lang=\"ts\">\n  import { computed } from 'vue'\n  import { useDnDStore } from 'vue-dnd-hooks'\n  import DefaultOverlay from './DefaultOverlay.vue'\n\n  const { activeContainer } = useDnDStore()\n\n  const overlay = computed(() => \n    activeContainer.component.value ?? DefaultOverlay\n  )\n</script>\n\n<template>\n  <component :is=\"overlay\" />\n</template>"
-}
