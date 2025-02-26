@@ -1,6 +1,9 @@
 <script setup lang="ts" generic="T">
-  import type { Component } from 'vue';
-  import { useDrag, useSelectionManager, type IDnDStore } from 'vue-dnd-hooks';
+  import { computed, type Component } from 'vue';
+
+  import { useDrag } from '../../composables/useDrag';
+  import { useSelectionManager } from '../../managers/useSelectionManager';
+  import type { IDnDStore } from '../../types';
 
   interface IDraggableProps<T> {
     container?: Component;
@@ -18,6 +21,8 @@
     (e: 'leave', store: IDnDStore): void;
   }>();
 
+  const dragData = computed(() => props.data);
+
   const {
     elementRef,
     handleDragStart,
@@ -27,6 +32,7 @@
     pointerPosition,
   } = useDrag({
     ...props,
+    data: dragData,
     events: {
       onHover: (store: IDnDStore) => emit('hover', store),
       onLeave: (store: IDnDStore) => emit('leave', store),

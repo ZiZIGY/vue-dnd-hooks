@@ -35,6 +35,10 @@ export default defineConfig({
                 text: 'Tree',
                 link: '/guide/examples/tree',
               },
+              {
+                text: 'Table',
+                link: '/guide/examples/table',
+              },
             ],
           },
           {
@@ -102,6 +106,7 @@ export default defineConfig({
           { text: 'Sortable', link: '/guide/examples/sortable' },
           { text: 'Nested Sortable', link: '/guide/examples/nested-sortable' },
           { text: 'Tree', link: '/guide/examples/tree' },
+          { text: 'Table', link: '/guide/examples/table' },
         ],
       },
       {
