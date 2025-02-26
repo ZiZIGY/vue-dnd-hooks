@@ -1,0 +1,1 @@
+import{_ as i,c as t,o,ae as a}from"./chunks/framework.Bujj2mq4.js";const h=JSON.parse('{"title":"About Vue DnD Hooks","description":"","frontmatter":{},"headers":[],"relativePath":"about.md","filePath":"about.md"}'),r={name:"about.md"};function l(n,e,s,c,u,d){return o(),t("div",null,e[0]||(e[0]=[a("",27)]))}const m=i(r,[["render",l]]);export{h as __pageData,m as default};
