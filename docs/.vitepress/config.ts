@@ -9,7 +9,7 @@ export default defineConfig({
       'link',
       {
         rel: 'icon',
-        href: '../../favicon.svg',
+        href: 'https://raw.githubusercontent.com/ZiZiGY/vue-dnd-hooks/master/public/logo.svg',
       },
     ],
   ],
