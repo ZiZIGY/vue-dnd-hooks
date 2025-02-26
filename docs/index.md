@@ -28,7 +28,7 @@ features:
 
   - icon: 🎨
     title: Fully Customizable
-    details: Complete control over the drag & drop behavior and styling. Create your perfect implementation.
+    details: Complete control over the drag & drop behavior and styling. Create your perfect implementation with custom animations and interactions.
 
   - icon: ⚡️
     title: Lightweight & Fast
